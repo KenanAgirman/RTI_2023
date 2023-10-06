@@ -26,8 +26,8 @@ int main(int argc,char* argv[])
     
    if((sClient = ClientSocket(argv[1],atoi(argv[2]))) == -1)
    {
-    perror("Erreur de ClientSocket");
-    exit(1);
+     perror("Erreur de ClientSocket");
+     exit(1);
    }
 
     // ***** Envoi de texte pur ***************************************

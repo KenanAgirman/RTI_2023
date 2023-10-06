@@ -104,19 +104,23 @@ int Accept(int sEcoute,char *ipClient)
 
 int ClientSocket(char* ipServeur,int portServeur)
 {
-    int sClient;
+	int sClient;
+
     printf("pid = %d\n",getpid());
-    
-    // Creation de la socket
-    if ((sClient = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+
+    if((sClient=socket(AF_INET,SOCK_STREAM,0))==-1)
     {
-        perror("Erreur de socket()");
+        perror("Erreur");
         exit(1);
     }
-    
+
+    printf("sClient = %d\n",sClient);
+
+
     // Construction de l'adresse du serveur
     struct addrinfo hints;
     struct addrinfo *results;
+    
     memset(&hints,0,sizeof(struct addrinfo));
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_STREAM;
@@ -126,8 +130,10 @@ int ClientSocket(char* ipServeur,int portServeur)
 
     sprintf(str, "%d", portServeur);
 
-    if (getaddrinfo(ipServeur,str,&hints,&results) != 0)
+    if(getaddrinfo(ipServeur,str,&hints,&results) != 0)
+    {
         exit(1);
+    }
 
     // Demande de connexion
     if (connect(sClient,results->ai_addr,results->ai_addrlen) == -1)
