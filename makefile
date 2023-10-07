@@ -1,22 +1,44 @@
 .SILENT:
 
-all:	Client
+Serv = Serveur
+SocketLib = SocketLib
+CLIENTQT = ClientQt
+OVESPSMOP = OVESPSMOP
+BD = BD_Maraicher
 
-Client:	mainclient.o windowclient.o moc_windowclient.o
-	echo "Création du Client"
-	g++ mainclient.o windowclient.o moc_windowclient.o -o Client /usr/lib64/libQt5Widgets.so /usr/lib64/libQt5Gui.so /usr/lib64/libQt5Core.so /usr/lib64/libGL.so -lpthread
+CXXFLAGS  = g++ -Wno-unused-parameter -c -pipe -g -std=gnu++11 -Wall -W -D_REENTRANT -fPIC -DQT_DEPRECATED_WARNINGS -DQT_QML_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I../UNIX_DOSSIER_FINAL -I. -isystem /usr/include/qt5 -isystem /usr/include/qt5/QtWidgets -isystem /usr/include/qt5/QtGui -isystem /usr/include/qt5/QtCore -I. -I. -I/usr/lib64/qt5/mkspecs/linux-g++ -o 
 
-mainclient.o:	mainclient.cpp
-	echo "Création de mainclient.o"
-	g++ -Wno-unused-parameter -c -pipe -g -std=gnu++11 -Wall -W -D_REENTRANT -fPIC -DQT_DEPRECATED_WARNINGS -DQT_QML_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I../UNIX_DOSSIER_FINAL -I. -isystem /usr/include/qt5 -isystem /usr/include/qt5/QtWidgets -isystem /usr/include/qt5/QtGui -isystem /usr/include/qt5/QtCore -I. -I. -I/usr/lib64/qt5/mkspecs/linux-g++ -o mainclient.o mainclient.cpp
+all:	Serveur Client
 
-windowclient.o:	windowclient.cpp
-	echo "Création de windowclient.o"
-	g++ -Wno-unused-parameter -c -pipe -g -std=gnu++11 -Wall -W -D_REENTRANT -fPIC -DQT_DEPRECATED_WARNINGS -DQT_QML_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I../UNIX_DOSSIER_FINAL -I. -isystem /usr/include/qt5 -isystem /usr/include/qt5/QtWidgets -isystem /usr/include/qt5/QtGui -isystem /usr/include/qt5/QtCore -I. -I. -I/usr/lib64/qt5/mkspecs/linux-g++ -o windowclient.o windowclient.cpp
+Serveur:	$(Serv)/Serveur.cpp $(OVESPSMOP)/TCP.o $(OVESPSMOP)/OVESP.o
+	echo "Creation du Serveur"
+	g++ $(Serv)/Serveur.cpp $(OVESPSMOP)/TCP.o OVESPSMOP/OVESP.o -o ServeurFinal -lpthread -I/usr/include/mysql -m64 -L/usr/lib64/mysql -lmysqlclient -lpthread -lz -lm -lrt -lssl -lcrypto -ldl
 
-moc_windowclient.o:	moc_windowclient.cpp
-	echo "Création de moc_windowclient.o"
-	g++ -Wno-unused-parameter -c -pipe -g -std=gnu++11 -Wall -W -D_REENTRANT -fPIC -DQT_DEPRECATED_WARNINGS -DQT_QML_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I../UNIX_DOSSIER_FINAL -I. -isystem /usr/include/qt5 -isystem /usr/include/qt5/QtWidgets -isystem /usr/include/qt5/QtGui -isystem /usr/include/qt5/QtCore -I. -I. -I/usr/lib64/qt5/mkspecs/linux-g++ -o moc_windowclient.o moc_windowclient.cpp
+OVESPSMOP/OVESP.o:	$(OVESPSMOP)/OVESP.h $(OVESPSMOP)/OVESP.cpp
+	echo "Creation du OVESP.o"
+	g++ $(OVESPSMOP)/OVESP.cpp -c -o $(OVESPSMOP)/OVESP.o -Wall -I/usr/include/mysql -m64 -L/usr/lib64/mysql -lmysqlclient -lpthread -lz -lm -lrt -lssl -lcrypto -ldl #-D DEBUG
+
+
+Client:	$(CLIENTQT)/mainclient.o $(CLIENTQT)/windowclient.o $(CLIENTQT)/moc_windowclient.o
+	echo "Creation du Client"
+	g++ -Wno-unused-parameter -o Client $(CLIENTQT)/mainclient.o $(CLIENTQT)/windowclient.o $(CLIENTQT)/moc_windowclient.o $(OVESPSMOP)/TCP.o  /usr/lib64/libQt5Widgets.so /usr/lib64/libQt5Gui.so /usr/lib64/libQt5Core.so /usr/lib64/libGL.so -lpthread
+
+
+$(OVESPSMOP)/TCP.o:	$(OVESPSMOP)/TCP.h $(OVESPSMOP)/TCP.cpp
+	echo "Creation du TCP.o"
+	g++ $(OVESPSMOP)/TCP.cpp -c -o $(OVESPSMOP)/TCP.o -Wall #-D DEBUG
+
+$(CLIENTQT)/moc_windowclient.o:	$(CLIENTQT)/moc_windowclient.cpp
+	echo "Creation du moc_windowclient.o"
+	$(CXXFLAGS) $(CLIENTQT)/moc_windowclient.o $(CLIENTQT)/moc_windowclient.cpp
+
+$(CLIENTQT)/windowclient.o:	$(CLIENTQT)/windowclient.cpp
+	echo "Creation du windowclient.o"
+	$(CXXFLAGS) $(CLIENTQT)/windowclient.o $(CLIENTQT)/windowclient.cpp
+
+$(CLIENTQT)/mainclient.o:	$(CLIENTQT)/mainclient.cpp
+	echo "Creation du mainclient.o"
+	$(CXXFLAGS) $(CLIENTQT)/mainclient.o $(CLIENTQT)/mainclient.cpp
 
 clean:
-	rm -f Client *.o
+	rm *.o

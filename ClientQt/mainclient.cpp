@@ -1,5 +1,5 @@
 #include "windowclient.h"
-#include "../SocketLib/TCP.h"
+#include "../OVESPSMOP/TCP.h"
 
 #include <QApplication>
 
@@ -36,14 +36,9 @@ int main(int argc, char *argv[])
         exit(1);
     }
     
-    if ((sClient = ClientSocket(argv[1],atoi(argv[2]))) == -1)
-    {
-        perror("Erreur de ClientSocket");
-        exit(1);
-    }
 
     QApplication a(argc, argv);
-    w = new WindowClient(sClient);
+    w = new WindowClient();
     w->show();
     return a.exec();
 }
