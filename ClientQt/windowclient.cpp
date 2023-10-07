@@ -8,7 +8,7 @@ extern WindowClient *w;
 
 #define REPERTOIRE_IMAGES "images/"
 
-WindowClient::WindowClient(QWidget *parent) : QMainWindow(parent), ui(new Ui::WindowClient)
+WindowClient::WindowClient(int socket,QWidget *parent) : QMainWindow(parent), ui(new Ui::WindowClient)
 {
     ui->setupUi(this);
 
@@ -273,7 +273,7 @@ void WindowClient::closeEvent(QCloseEvent *event)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void WindowClient::on_pushButtonLogin_clicked()
 {
-
+  printf("je suis cici \n");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////

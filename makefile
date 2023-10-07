@@ -8,7 +8,7 @@ BD = BD_Maraicher
 
 CXXFLAGS  = g++ -Wno-unused-parameter -c -pipe -g -std=gnu++11 -Wall -W -D_REENTRANT -fPIC -DQT_DEPRECATED_WARNINGS -DQT_QML_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I../UNIX_DOSSIER_FINAL -I. -isystem /usr/include/qt5 -isystem /usr/include/qt5/QtWidgets -isystem /usr/include/qt5/QtGui -isystem /usr/include/qt5/QtCore -I. -I. -I/usr/lib64/qt5/mkspecs/linux-g++ -o 
 
-all:	Serveur Client
+all:	Serveur Client CreationBD
 
 Serveur:	$(Serv)/Serveur.cpp $(OVESPSMOP)/TCP.o $(OVESPSMOP)/OVESP.o
 	echo "Creation du Serveur"
@@ -40,5 +40,9 @@ $(CLIENTQT)/mainclient.o:	$(CLIENTQT)/mainclient.cpp
 	echo "Creation du mainclient.o"
 	$(CXXFLAGS) $(CLIENTQT)/mainclient.o $(CLIENTQT)/mainclient.cpp
 
+CreationBD:	$(BD)/CreationBD.cpp
+	echo "Creation de CreationBD"
+	g++ -o CreationBD $(BD)/CreationBD.cpp -I/usr/include/mysql -m64 -L/usr/lib64/mysql -lmysqlclient -lpthread -lz -lm -lrt -lssl -lcrypto -ldl
+
 clean:
-	rm *.o
+	rm -f OVESPSMOP/*.o  CreationBD/*.o $(CLIENTQT)/*.o

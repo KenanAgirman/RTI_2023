@@ -13,7 +13,7 @@
 void HandlerSIGINT(int s);
 
 WindowClient *w;
-int sClient;
+int sClient = 0;
 
 int main(int argc, char *argv[])
 {
@@ -36,9 +36,15 @@ int main(int argc, char *argv[])
         exit(1);
     }
     
+    if ((sClient = ClientSocket(argv[1],atoi(argv[2]))) == -1)
+    {
+        perror("Erreur de ClientSocket");
+        exit(1);
+    }
 
+    
     QApplication a(argc, argv);
-    w = new WindowClient();
+    w = new WindowClient(sClient);
     w->show();
     return a.exec();
 }
