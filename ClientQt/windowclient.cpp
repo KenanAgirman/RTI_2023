@@ -7,7 +7,6 @@
 using namespace std;
 
 extern WindowClient *w;
-int clientCLi;
 
 #define REPERTOIRE_IMAGES "ClientQt/images/"
 
@@ -276,31 +275,45 @@ void WindowClient::closeEvent(QCloseEvent *event)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void WindowClient::on_pushButtonLogin_clicked()
 {
-  const char* nom = getNom();
-  const char* password = getMotDePasse();
-  char requete[200],reponse[200];
-  int nbEcrits, nbLus;
-  
+    const char* nom = getNom();
+    const char* password = getMotDePasse();
+    char requete[200],reponse[200];
+    int nbEcrits, nbLus;
 
-  if(strlen(nom)==0) dialogueErreur("Login","Erreur le champ login est vide");
-  else if(strlen(password)==0) dialogueErreur("password","Erreur le champ password est vide");
-  else
-  {
-    printf("Voici le nom = %s\n", nom);
-    printf("Voici le mot de passe = %s\n", password);
+    if(strlen(nom)==0) dialogueErreur("Login","Erreur le champ login est vide");
+    else if(strlen(password)==0) dialogueErreur("password","Erreur le champ password est vide");
+    else
+    {
+        printf("Voici le nom = %s\n", nom);
+        printf("Voici le mot de passe = %s\n", password);
 
-    sprintf(requete, "LOGIN#%s#%s#%d", nom, password, isNouveauClientChecked());
+        sprintf(requete, "LOGIN#%s#%s#%d\n", nom, password, isNouveauClientChecked());
 
-   if((nbEcrits = Send(sClient,requete,strlen(requete))) < 0)
-   {
-     perror("Erreur de Send");
+        if((nbEcrits = Send(sClient,requete,strlen(requete))) == -1)
+        {
+            perror("Erreur de Send");
+            exit(1);
+        }
 
-   }
+        printf("NbEcrits = %d\n",nbEcrits);
+        printf("Ecrit = --%s--\n",requete);
 
-     printf("NbEcrits = %d\n",nbEcrits);
-    printf("Ecrit = --%s--\n",requete);
+
+        // ***** Attente de la reponse ****************
+        if((nbLus = Receive(sClient,reponse)) < 0)
+        {
+          perror("Erreur de Receive");
+        }
+        if(nbLus == 0)
+        {
+          printf("Serveur arrete, pas de reponse reçue...");
+        }
+        
+        reponse[nbLus] = 0;
+        printf("Reponse recue = %s\n",reponse);
   }
 }
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void WindowClient::on_pushButtonLogout_clicked()

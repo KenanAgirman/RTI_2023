@@ -42,6 +42,7 @@ bool SMOP(char* requete, char* reponse,int socket)
 	 {
 		 if(SMOP_Login(user,password))
 		 {
+		 	printf("je suis icic\n");
 		   sprintf(reponse,"LOGIN#ok");
 		   ajoute(socket);
 		 } 

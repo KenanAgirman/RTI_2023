@@ -36,9 +36,8 @@ int main(int argc,char* argv[])
  pthread_cond_init(&condSocketsAcceptees,NULL);
 
  for (int i=0 ; i<TAILLE_FILE_ATTENTE ; i++)
- {
     socketsAcceptees[i] = -1;
- }
+ 
 
  // Armement des signaux
  struct sigaction A;
@@ -164,8 +163,9 @@ void TraitementConnexion(int sService)
     requete[nbLus] = 0;
     
     printf("\t[THREAD %p] Requete recue = %s\n",pthread_self(),requete);
-    // ***** Traitement de la requete ***********
+    // ***** Traitement de la requete *********** 
     
+    printf("Je prepare pour la connexion\n");
     onContinue = SMOP(requete,reponse,sService);
     // ***** Envoi de la reponse ****************
     if((nbEcrits = Send(sService,reponse,strlen(reponse))) < 0)

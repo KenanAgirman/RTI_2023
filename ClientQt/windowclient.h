@@ -12,7 +12,7 @@ class WindowClient : public QMainWindow
     Q_OBJECT
 
 public:
-    WindowClient(int socket,QWidget *parent = nullptr);
+    WindowClient(int sClient, QWidget *parent = nullptr);
     ~WindowClient();
 
     // Fonctions utiles (ne pas modifier)
@@ -55,5 +55,6 @@ private:
 
     char motDePasse[20];
     char nom[20];
+    int sClient;
 };
 #endif // WINDOWCLIENT_H
