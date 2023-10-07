@@ -2,13 +2,16 @@
 #include "ui_windowclient.h"
 #include <QMessageBox>
 #include <string>
+#include "../OVESPSMOP/TCP.h"
+#include "../OVESPSMOP/OVESP.h"
 using namespace std;
 
 extern WindowClient *w;
+int clientCLi;
 
-#define REPERTOIRE_IMAGES "images/"
+#define REPERTOIRE_IMAGES "ClientQt/images/"
 
-WindowClient::WindowClient(int socket,QWidget *parent) : QMainWindow(parent), ui(new Ui::WindowClient)
+WindowClient::WindowClient(int sClient,QWidget *parent) : QMainWindow(parent), ui(new Ui::WindowClient)
 {
     ui->setupUi(this);
 
@@ -30,8 +33,8 @@ WindowClient::WindowClient(int socket,QWidget *parent) : QMainWindow(parent), ui
     setPublicite("!!! Bienvenue sur le Maraicher en ligne !!!");
 
     // Exemples à supprimer
-    setArticle("pommes",5.53,18,"pommes.jpg");
-    ajouteArticleTablePanier("cerises",8.96,2);
+    // setArticle("echalotes",5.53,18,"echalotes.jpg");
+    // ajouteArticleTablePanier("valentin",8.96,2);
 }
 
 WindowClient::~WindowClient()
@@ -273,7 +276,30 @@ void WindowClient::closeEvent(QCloseEvent *event)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void WindowClient::on_pushButtonLogin_clicked()
 {
-  printf("je suis cici \n");
+  const char* nom = getNom();
+  const char* password = getMotDePasse();
+  char requete[200],reponse[200];
+  int nbEcrits, nbLus;
+  
+
+  if(strlen(nom)==0) dialogueErreur("Login","Erreur le champ login est vide");
+  else if(strlen(password)==0) dialogueErreur("password","Erreur le champ password est vide");
+  else
+  {
+    printf("Voici le nom = %s\n", nom);
+    printf("Voici le mot de passe = %s\n", password);
+
+    sprintf(requete, "LOGIN#%s#%s#%d", nom, password, isNouveauClientChecked());
+
+   if((nbEcrits = Send(sClient,requete,strlen(requete))) < 0)
+   {
+     perror("Erreur de Send");
+
+   }
+
+     printf("NbEcrits = %d\n",nbEcrits);
+    printf("Ecrit = --%s--\n",requete);
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
