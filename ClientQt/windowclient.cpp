@@ -280,7 +280,8 @@ void WindowClient::on_pushButtonLogin_clicked()
 {
     const char* nom = getNom();
     const char* password = getMotDePasse();
-    char requete[200],reponse[200];
+    char requete[200],reponse[200],reponseConnecte[10], messageConnecte[10];
+;
     int nbEcrits, nbLus;
 
     if(strlen(nom)==0) dialogueErreur("Login","Erreur le champ login est vide");
@@ -313,18 +314,44 @@ void WindowClient::on_pushButtonLogin_clicked()
           exit(1);
         }
         
-        printf("NbLus = %d\n",nbLus);
-        reponse[nbLus] = 0;
-        printf("Lu = --%s--\n",reponse);
+         printf("NbLus = %d\n",nbLus);
+         reponse[nbLus] = 0;
+         printf("Lu = --%s--\n",reponse);
 
+        char *ptr = strtok(reponse,"#");
+        printf("ptr = %s\n",ptr);
+        if (strcmp(ptr,"LOGIN") == 0) 
+        {
+          strcpy(reponseConnecte,strtok(NULL,"#"));
+          printf("ptr = %s\n",ptr);
+          printf("SE = %s\n",reponseConnecte);
+
+          if (strcmp(reponseConnecte,"OK") == 0) 
+          {
+            if(isNouveauClientChecked() == 1) dialogueMessage("Login", "Vous avez été inscrit avec succès");
+
+            printf("SE1 = %s\n",reponseConnecte);
+            dialogueMessage("Login", "Connexion établie");
+
+            loginOK();
+            setPublicite("TROP CHAUD BEAUGOSSE");
+          }
+          else
+          {
+            strcpy(messageConnecte,strtok(NULL,"#"));
+            printf("message = %s\n",messageConnecte);
+
+            setPublicite("PAS BON\n");
+          }
+      }
   }
 }
-
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void WindowClient::on_pushButtonLogout_clicked()
 {
-
+  logoutOK();
+  setPublicite("AU REVOIR");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////

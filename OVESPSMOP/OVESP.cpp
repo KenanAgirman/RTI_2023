@@ -52,9 +52,9 @@ bool SMOP(char* requete, char* reponse,int socket)
 	 	{
 	 	  if(SMOP_Login(user,password))
 		 {
-		    sprintf(reponse,"LOGIN#%s/%s\n",user,password);
+		    sprintf(reponse,"LOGIN#OK");
 		    ajoute(socket);
-		    
+		    printf("Bienvenu BG\n");
 		    return true;
 		 } 
 		 else
