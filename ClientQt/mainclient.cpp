@@ -13,7 +13,7 @@
 void HandlerSIGINT(int s);
 
 WindowClient *w;
-int sClient = 0;
+int sClient;
 
 int main(int argc, char *argv[])
 {
@@ -42,7 +42,9 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    
+    printf("je suis la socket numero = %d\n",sClient);
+
+
     QApplication a(argc, argv);
     w = new WindowClient(sClient);
     w->show();

@@ -9,6 +9,9 @@
 int clients[NB_MAX_CLIENTS];
 int nbClients = 0;
 
+int isNouveau =0;
+
+
 int estPresent(int socket);
 void ajoute(int socket);
 void retire(int socket);
@@ -17,6 +20,8 @@ pthread_mutex_t mutexClients = PTHREAD_MUTEX_INITIALIZER;
 
 bool SMOP(char* requete, char* reponse,int socket)
 {
+
+	printf("REQUETE =%s/%s/%d\n",requete,reponse,socket);
 	// ***** Récupération nom de la requete *****************
 
 	char *ptr = strtok(requete,"#");
@@ -26,11 +31,14 @@ bool SMOP(char* requete, char* reponse,int socket)
 	if(strcmp(ptr,"LOGIN") == 0) 
 	{
 	 char user[50], password[50];
+	 int nouveauClient;
 
 	 strcpy(user,strtok(NULL,"#"));
 
 	 strcpy(password,strtok(NULL,"#"));
 
+     nouveauClient = atoi(strtok(NULL,"#"));
+	 
 	 printf("\t[THREAD %p] LOGIN de %s\n",pthread_self(),user);
 
 	 if(estPresent(socket) >= 0) // client déjà loggé
@@ -40,17 +48,22 @@ bool SMOP(char* requete, char* reponse,int socket)
 	 }
 	 else
 	 {
-		 if(SMOP_Login(user,password))
+	 	if(nouveauClient==0)
+	 	{
+	 	  if(SMOP_Login(user,password))
 		 {
-		 	printf("je suis icic\n");
-		   sprintf(reponse,"LOGIN#ok");
-		   ajoute(socket);
+		    sprintf(reponse,"LOGIN#%s/%s\n",user,password);
+		    ajoute(socket);
+		    
+		    return true;
 		 } 
 		 else
 		 {
+		 	
 		   sprintf(reponse,"LOGIN#ko#Mauvais identifiants !");
 		   return false;
 		 }
+	 	}
 	 }
 
 	}
@@ -68,9 +81,8 @@ bool SMOP(char* requete, char* reponse,int socket)
 //***** Traitement des requetes *************************************
 bool SMOP_Login(const char* user,const char* password)
 {
- if (strcmp(user,"wagner")==0 && strcmp(password,"abc123")==0) return true;
- if (strcmp(user,"charlet")==0 && strcmp(password,"xyz456")==0) return true;
- return false;
+
+ return true;
 }
 
 //***** Gestion de l'état du protocole ******************************

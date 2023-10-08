@@ -159,10 +159,13 @@ void TraitementConnexion(int sService)
 	 // ***** Reception Requete ******************
 	 if((nbLus = Receive(sService,requete)) < 0)
 	 {
-	    perror("Erreur de Receive");
+	    perror("Erreur de Receive()");
 	    close(sService);
 	    HandlerSIGINT(0);
 	 }
+
+	 printf("requete = %s\n",requete);
+	 printf("NBLUS =%d\n",nbLus);
 
 	 printf("je suis ici pour le Receive\n");
 	 // ***** Fin de connexion ? *****************
@@ -173,10 +176,13 @@ void TraitementConnexion(int sService)
 		 return;
 	 }
 	 requete[nbLus] = 0;
+
 	 printf("\t[THREAD %p] Requete recue = %s\n",pthread_self(),requete);
 	 // ***** Traitement de la requete ***********
 	 printf("Envoie de la requete SMOP\n");
+
 	 onContinue = SMOP(requete,reponse,sService);
+
  	 // ***** Envoi de la reponse ****************
 	 if((nbEcrits = Send(sService,reponse,strlen(reponse))) < 0)
 	 {

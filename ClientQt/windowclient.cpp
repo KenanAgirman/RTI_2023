@@ -8,6 +8,7 @@ using namespace std;
 
 extern WindowClient *w;
 
+int sClientClient;
 #define REPERTOIRE_IMAGES "ClientQt/images/"
 
 WindowClient::WindowClient(int sClient,QWidget *parent) : QMainWindow(parent), ui(new Ui::WindowClient)
@@ -29,11 +30,13 @@ WindowClient::WindowClient(int sClient,QWidget *parent) : QMainWindow(parent), u
     ui->tableWidgetPanier->horizontalHeader()->setStyleSheet("background-color: lightyellow");
 
     ui->pushButtonPayer->setText("Confirmer achat");
-    setPublicite("!!! Bienvenue sur le Maraicher en ligne !!!");
+    //setPublicite("!!! Bienvenue sur le Maraicher en ligne !!!");
 
     // Exemples à supprimer
-    // setArticle("echalotes",5.53,18,"echalotes.jpg");
-    // ajouteArticleTablePanier("valentin",8.96,2);
+    setArticle("cerises",5.53,18,"cerises.jpg");
+    ajouteArticleTablePanier("valentin",8.96,2);
+
+    sClientClient = sClient;
 }
 
 WindowClient::~WindowClient()
@@ -288,8 +291,13 @@ void WindowClient::on_pushButtonLogin_clicked()
         printf("Voici le mot de passe = %s\n", password);
 
         sprintf(requete, "LOGIN#%s#%s#%d\n", nom, password, isNouveauClientChecked());
+        printf("REQUETE  requete requete requete requete =%s\n",requete);
+        
+        int taille = strlen(requete);
 
-        if((nbEcrits = Send(sClient,requete,strlen(requete))) == -1)
+        printf("sClientClient,REQUETE,strlen(requete) = %d/%s/%d\n",sClientClient,requete,taille);
+
+        if((nbEcrits = Send(sClientClient,requete,strlen(requete))) == -1)
         {
             perror("Erreur de Send");
             exit(1);
@@ -298,19 +306,17 @@ void WindowClient::on_pushButtonLogin_clicked()
         printf("NbEcrits = %d\n",nbEcrits);
         printf("Ecrit = --%s--\n",requete);
 
-
-        // ***** Attente de la reponse ****************
-        if((nbLus = Receive(sClient,reponse)) < 0)
+      
+        if((nbLus = Receive(sClientClient,reponse)) < 0)
         {
           perror("Erreur de Receive");
-        }
-        if(nbLus == 0)
-        {
-          printf("Serveur arrete, pas de reponse reçue...");
+          exit(1);
         }
         
+        printf("NbLus = %d\n",nbLus);
         reponse[nbLus] = 0;
-        printf("Reponse recue = %s\n",reponse);
+        printf("Lu = --%s--\n",reponse);
+
   }
 }
 

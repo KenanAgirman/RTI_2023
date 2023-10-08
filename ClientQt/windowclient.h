@@ -55,6 +55,6 @@ private:
 
     char motDePasse[20];
     char nom[20];
-    int sClient;
+
 };
 #endif // WINDOWCLIENT_H
