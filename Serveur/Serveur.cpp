@@ -4,15 +4,18 @@
 #include <string.h>
 #include <signal.h>
 #include <pthread.h>
+#include <mysql.h>
 #include "../OVESPSMOP/TCP.h"
 #include "../OVESPSMOP/OVESP.h"
 
 void HandlerSIGINT(int s);
 void TraitementConnexion(int sService);
 void* FctThreadClient(void* p);
+void BDConnecte();
+
 
 int sEcoute;
-
+MYSQL* connexion;
 // Gestion du pool de threads
 
 #define NB_THREADS_POOL 2
@@ -23,6 +26,8 @@ int indiceEcriture=0, indiceLecture=0;
 
 pthread_mutex_t mutexSocketsAcceptees;
 pthread_cond_t condSocketsAcceptees;
+pthread_mutex_t mutexPourBD;
+
 
 int main(int argc,char* argv[])
 {
@@ -36,6 +41,7 @@ int main(int argc,char* argv[])
 	// Initialisation socketsAcceptees
    pthread_mutex_init(&mutexSocketsAcceptees,NULL);
    pthread_cond_init(&condSocketsAcceptees,NULL);
+   pthread_mutex_init(&mutexPourBD,NULL);
 
    for (int i=0 ; i<TAILLE_FILE_ATTENTE ; i++)
    {
@@ -62,6 +68,9 @@ int main(int argc,char* argv[])
 	  exit(1);
 	}
 
+	 printf("Demarrage de la BD\n");
+
+	 BDConnecte();
 
 	 printf("Création du pool de threads.\n");
 	 pthread_t th;
@@ -144,6 +153,7 @@ void HandlerSIGINT(int s)
 
  pthread_mutex_unlock(&mutexSocketsAcceptees);
  SMOP_Close();
+ mysql_close(connexion);
  exit(0);
 }
 
@@ -180,8 +190,10 @@ void TraitementConnexion(int sService)
 	 printf("\t[THREAD %p] Requete recue = %s\n",pthread_self(),requete);
 	 // ***** Traitement de la requete ***********
 	 printf("Envoie de la requete SMOP\n");
+	 pthread_mutex_lock(&mutexPourBD);
 
-	 onContinue = SMOP(requete,reponse,sService);
+	 onContinue = SMOP(requete,reponse,sService,connexion);
+	 pthread_mutex_unlock(&mutexPourBD);
 
  	 // ***** Envoi de la reponse ****************
 	 if((nbEcrits = Send(sService,reponse,strlen(reponse))) < 0)
@@ -195,4 +207,14 @@ void TraitementConnexion(int sService)
 	 printf("\t[THREAD %p] Fin de connexion de la socket  %d\n",pthread_self(),sService);
  }
 
+}
+void BDConnecte()
+{
+	connexion = mysql_init(NULL);
+    
+    if (mysql_real_connect(connexion,"localhost","Student","PassStudent1_","PourStudent",0,0,0) == NULL)
+    {
+        fprintf(stderr,"(SERVEUR) Erreur de connexion à la base de données...\n");
+        exit(1);
+    }
 }

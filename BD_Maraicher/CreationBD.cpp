@@ -59,6 +59,14 @@ int main(int argc,char *argv[])
 	  mysql_query(connexion,requete);
   }
 
+  printf("Creation d'une table Users\n");
+  mysql_query(connexion,"create table utilisateurs (login varchar(50) primary key, MDP varchar(50));");
+  sprintf(requete,"insert into utilisateurs values ('%s','%s');", "patrick", "patrick");
+
+  mysql_query(connexion,requete);
+
+  printf("Creation terminer\n");
+
   // Deconnection de la BD
   mysql_close(connexion);
   exit(0);

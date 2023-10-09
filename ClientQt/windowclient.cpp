@@ -3,11 +3,10 @@
 #include <QMessageBox>
 #include <string>
 #include "../OVESPSMOP/TCP.h"
-#include "../OVESPSMOP/OVESP.h"
 using namespace std;
 
 extern WindowClient *w;
-
+bool logged = false;
 int sClientClient;
 #define REPERTOIRE_IMAGES "ClientQt/images/"
 
@@ -328,12 +327,13 @@ void WindowClient::on_pushButtonLogin_clicked()
 
           if (strcmp(reponseConnecte,"OK") == 0) 
           {
-            if(isNouveauClientChecked() == 1) dialogueMessage("Login", "Vous avez été inscrit avec succès");
+            if(isNouveauClientChecked() == 1) dialogueMessage("Login", "ok");
 
             printf("SE1 = %s\n",reponseConnecte);
             dialogueMessage("Login", "Connexion établie");
 
             loginOK();
+            logged = true;
             setPublicite("TROP CHAUD BEAUGOSSE");
           }
           else
