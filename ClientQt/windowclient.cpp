@@ -280,7 +280,7 @@ void WindowClient::on_pushButtonLogin_clicked()
     const char* nom = getNom();
     const char* password = getMotDePasse();
     char requete[200],reponse[200],reponseConnecte[10], messageConnecte[100];
-;
+
     int nbEcrits, nbLus;
 
     if(strlen(nom)==0) dialogueErreur("Login","Erreur le champ login est vide");
@@ -349,8 +349,45 @@ void WindowClient::on_pushButtonLogin_clicked()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void WindowClient::on_pushButtonLogout_clicked()
 {
-  logoutOK();
-  setPublicite("AU REVOIR");
+  char requete[200],reponse[200],reponseConnecte[100];
+
+  int nbEcrits, nbLus;
+
+  sprintf(requete, "LOGOUT");
+
+  if((nbEcrits = Send(sClientClient,requete,strlen(requete))) == -1)
+  {
+    perror("Erreur de Send");
+     exit(1);
+  }
+  printf("NbEcrits = %d\n",nbEcrits);
+  printf("Ecrit = --%s--\n",requete);
+  
+
+  if((nbLus = Receive(sClientClient,reponse)) < 0)
+  {
+    perror("Erreur de Receive");
+    exit(1);
+  }
+        
+  printf("NbLus = %d\n",nbLus);
+  reponse[nbLus] = 0;
+  printf("Lu = --%s--\n",reponse);
+  
+  char *ptr = strtok(reponse,"#");
+  printf("ptr = %s\n",ptr);
+  
+  if (strcmp(ptr,"LOGOUT") == 0) 
+  {
+    strcpy(reponseConnecte,strtok(NULL,"#"));
+    printf("ptr = %s\n",ptr);
+    printf("SE = %s\n",reponseConnecte);
+
+    logoutOK();
+    setPublicite("AU REVOIR");
+    
+  }
+         
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
