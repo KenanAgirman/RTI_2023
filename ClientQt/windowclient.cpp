@@ -32,8 +32,8 @@ WindowClient::WindowClient(int sClient,QWidget *parent) : QMainWindow(parent), u
     //setPublicite("!!! Bienvenue sur le Maraicher en ligne !!!");
 
     // Exemples à supprimer
-    setArticle("cerises",5.53,18,"cerises.jpg");
-    ajouteArticleTablePanier("valentin",8.96,2);
+    // setArticle("cerises",5.53,18,"cerises.jpg");
+    // ajouteArticleTablePanier("valentin",8.96,2);
 
     sClientClient = sClient;
 }
@@ -279,7 +279,7 @@ void WindowClient::on_pushButtonLogin_clicked()
 {
     const char* nom = getNom();
     const char* password = getMotDePasse();
-    char requete[200],reponse[200],reponseConnecte[10], messageConnecte[10];
+    char requete[200],reponse[200],reponseConnecte[10], messageConnecte[100];
 ;
     int nbEcrits, nbLus;
 
@@ -325,22 +325,21 @@ void WindowClient::on_pushButtonLogin_clicked()
           printf("ptr = %s\n",ptr);
           printf("SE = %s\n",reponseConnecte);
 
-          if (strcmp(reponseConnecte,"OK") == 0) 
+          if (strcmp(reponseConnecte,"ok") == 0) 
           {
-            if(isNouveauClientChecked() == 1) dialogueMessage("Login", "ok");
+            if(isNouveauClientChecked() == 1)
+            {
+              dialogueMessage("Login", "ok");
+            }
 
             printf("SE1 = %s\n",reponseConnecte);
             dialogueMessage("Login", "Connexion établie");
 
             loginOK();
-            logged = true;
             setPublicite("TROP CHAUD BEAUGOSSE");
           }
           else
           {
-            strcpy(messageConnecte,strtok(NULL,"#"));
-            printf("message = %s\n",messageConnecte);
-
             setPublicite("PAS BON\n");
           }
       }

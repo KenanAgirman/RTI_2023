@@ -175,7 +175,6 @@ void TraitementConnexion(int sService)
 	 }
 
 	 printf("requete = %s\n",requete);
-	 printf("NBLUS =%d\n",nbLus);
 
 	 printf("je suis ici pour le Receive\n");
 	 // ***** Fin de connexion ? *****************

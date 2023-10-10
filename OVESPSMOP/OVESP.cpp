@@ -24,7 +24,7 @@ pthread_mutex_t mutexClients = PTHREAD_MUTEX_INITIALIZER;
 
 bool SMOP(char *requete, char *reponse, int socket,MYSQL* connexion)
 {
-printf("REQUETE =%s/%s/%d\n",requete,reponse,socket);
+	printf("REQUETE =%s/%s/%d\n",requete,reponse,socket);
 	// ***** Récupération nom de la requete *****************
 
 	char *ptr = strtok(requete,"#");
@@ -35,7 +35,7 @@ printf("REQUETE =%s/%s/%d\n",requete,reponse,socket);
 	{
 	 char user[50], password[50];
 	 int nouveauClient;
-	 bool check;
+	 bool check,check2;
 
 
 	 strcpy(user,strtok(NULL,"#"));
@@ -56,25 +56,37 @@ printf("REQUETE =%s/%s/%d\n",requete,reponse,socket);
 	 	if(nouveauClient==0)
 	 	{
 	 	  check = SMOP_Login(user,password,connexion);
-		  printf("%d\n", check);
+		  printf("check check check =%d\n", check);
 	 	 
-	 	 if(check==false)
+	 	 if(check==true)
 		 {
-		    sprintf(reponse,"LOGIN#OK");
+		    sprintf(reponse,"LOGIN#ok");
 		    ajoute(socket);
 		    printf("Bienvenu BG\n");
-		    return true;
 		 } 
 		 else
 		 {
 		 	
-		   sprintf(reponse,"LOGIN#ko#Mauvais identifiants !");
-		   return false;
+		   sprintf(reponse,"LOGIN#ko");
+		   printf("je susi ciciciciicicic\n");
 		 }
 	 	}
 	 	else
 	 	{
 	 		printf("Vous etez un nouveau client\n");
+	 		check2 = nouveauClientDansBD(user,password,connexion);
+
+	 		if(check2==false)
+	 		{
+	 			sprintf(reponse,"LOGIN#ok");
+                ajoute(socket);
+
+	 		}
+	 		else
+	 		{
+	 			sprintf(reponse,"LOGIN#ko#utilisateursko");
+
+	 		}
 	 	}
 	 }
 
@@ -93,37 +105,91 @@ printf("REQUETE =%s/%s/%d\n",requete,reponse,socket);
 
 
 //***** Traitement des requetes *************************************
-bool SMOP_Login(const char* user,const char* password,MYSQL* connexion)
+bool SMOP_Login(const char* user, const char* password, MYSQL* connexion)
 {
-	printf("JE PASSE DANS LE LOGIN\n");
-	if (mysql_query(connexion, "SELECT * FROM utilisateurs WHERE login = ?"))
+    printf("JE PASSE DANS LE LOGIN\n");
+    
+    char requete[100];
+
+    MYSQL_ROW row;
+    MYSQL_RES* resultat;
+
+    sprintf(requete,"select * from utilisateurs where login = '%s';",user);
+
+    if (mysql_query(connexion,requete) != 0)
     {
-        fprintf(stderr, "Erreur lors de l'exécution de la requête : %s\n", mysql_error(connexion));
-        return false;
+        fprintf(stderr, "Erreur de mysql_query: %s\n",mysql_error(connexion));
+        exit(1);
     }
 
-    MYSQL_RES *resultat = mysql_store_result(connexion);
-
-    if (resultat == NULL)
+    if ((resultat = mysql_store_result(connexion)) == NULL)
     {
-        fprintf(stderr, "Erreur lors de la récupération du résultat : %s\n", mysql_error(connexion));
-        return false;
+        fprintf(stderr, "Erreur de mysql_store_result: %s\n",mysql_error(connexion));
+        exit(1);
     }
 
-    if (mysql_num_rows(resultat) == 1)
+    if((row = mysql_fetch_row(resultat)) != NULL)
     {
-        mysql_free_result(resultat);
+        if(strcmp(password, row[1]) == 0)
+        {
+        	return true;
+        }
+        else
+        {
+        	return false;
+        }
+    }
+
+}
+
+int nouveauClientDansBD(const char* user, const char* password, MYSQL* connexion)
+{
+    printf("JE PASSE DANS NOUVEAU\n");
+    
+    char requete[100];
+
+    MYSQL_ROW row;
+    MYSQL_RES* resultat;
+
+
+    sprintf(requete,"select * from utilisateurs where login = '%s';", user);
+
+    if (mysql_query(connexion,requete) != 0)
+    {
+        fprintf(stderr, "Erreur de mysql_query: %s\n",mysql_error(connexion));
+        exit(1);
+    }
+
+    printf("Requete SELECT réussie sur login.\n");
+
+    // Affichage du Result Set
+
+    if ((resultat = mysql_store_result(connexion)) == NULL)
+    {
+        fprintf(stderr, "Erreur de mysql_store_result: %s\n",mysql_error(connexion));
+        exit(1);
+    }
+
+    if((row = mysql_fetch_row(resultat)) != NULL)
+    {
         return true;
     }
     else
     {
-        mysql_free_result(resultat);
+        sprintf(requete,"insert into utilisateurs (login, MDP) values ('%s', '%s')",user, password);
+
+
+        if (mysql_query(connexion,requete) != 0)
+        {
+            fprintf(stderr, "Erreur de mysql_query: %s\n",mysql_error(connexion));
+            exit(1);
+        }
+
+        printf("Requete INSERT réussie sur login.\n");
+
         return false;
     }
-
-
 }
-
 //***** Gestion de l'état du protocole ******************************
 int estPresent(int socket)
 {
