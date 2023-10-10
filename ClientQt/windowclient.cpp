@@ -8,6 +8,20 @@ using namespace std;
 extern WindowClient *w;
 bool logged = false;
 int sClientClient;
+
+
+typedef struct
+{
+  int   id;
+  char  intitule[20];
+  float prix;
+  int   stock;  
+  char  image[20];
+} ARTICLE;
+
+ARTICLE ArtcileCourant;
+ARTICLE Caddie[10];
+
 #define REPERTOIRE_IMAGES "ClientQt/images/"
 
 WindowClient::WindowClient(int sClient,QWidget *parent) : QMainWindow(parent), ui(new Ui::WindowClient)
@@ -279,7 +293,7 @@ void WindowClient::on_pushButtonLogin_clicked()
 {
     const char* nom = getNom();
     const char* password = getMotDePasse();
-    char requete[200],reponse[200],reponseConnecte[10], messageConnecte[100];
+    char requete[200],reponse[200],reponseConnecte[10];
 
     int nbEcrits, nbLus;
 
@@ -327,6 +341,7 @@ void WindowClient::on_pushButtonLogin_clicked()
 
           if (strcmp(reponseConnecte,"ok") == 0) 
           {
+            getArticle(1);
             if(isNouveauClientChecked() == 1)
             {
               dialogueMessage("Login", "ok");
@@ -393,13 +408,13 @@ void WindowClient::on_pushButtonLogout_clicked()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void WindowClient::on_pushButtonSuivant_clicked()
 {
-
+  getArticle(ArtcileCourant.id+1);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void WindowClient::on_pushButtonPrecedent_clicked()
 {
-
+  getArticle(ArtcileCourant.id-1);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -424,4 +439,59 @@ void WindowClient::on_pushButtonViderPanier_clicked()
 void WindowClient::on_pushButtonPayer_clicked()
 {
 
+}
+void WindowClient::getArticle(int id)
+{
+  char requete[200],reponse[200];
+
+  int nbEcrits, nbLus;
+
+  sprintf(requete,"CONSULT#%d",id);
+
+
+  if((nbEcrits = Send(sClientClient,requete,strlen(requete))) == -1)
+  {
+    perror("Erreur de Send");
+    exit(1);
+  }
+
+  printf("NbEcrits = %d\n",nbEcrits);
+  printf("Ecrit = --%s--\n",requete);
+
+
+  if((nbLus = Receive(sClientClient,reponse)) < 0)
+  {
+      perror("Erreur de Receive");
+      exit(1);
+  }
+
+  printf("NbLus = %d\n",nbLus);
+  reponse[nbLus] = 0;
+  printf("Lu = --%s--\n",reponse);
+  char *ptr = strtok(reponse,"#");
+
+  if (strcmp(ptr,"CONSULT") == 0) 
+  {
+    int idBD;
+    idBD = atoi(strtok(NULL,"#"));
+
+    char intitule[20], image[20];
+    float prix;
+    int stock;
+    printf("newID = %d\n",idBD);
+
+    strcpy(intitule,strtok(NULL,"#"));
+    stock = atoi(strtok(NULL,"#"));
+    prix = atof(strtok(NULL,"#"));
+    strcpy(image,strtok(NULL,"#"));
+
+    setArticle(intitule, prix, stock , image);
+
+    ArtcileCourant.id = idBD;
+    ArtcileCourant.stock = stock;
+    ArtcileCourant.prix = prix;
+    strcpy(ArtcileCourant.intitule, intitule);
+    strcpy(ArtcileCourant.image, image);
+
+  }
 }

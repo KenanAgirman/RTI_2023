@@ -8,6 +8,8 @@ bool SMOP_Login(const char* user,const char* password,MYSQL* connexion);
 
 int nouveauClientDansBD(const char* user,const char* password,MYSQL* connexion);
 
+void SMOP_Consult(int id,MYSQL* connexion,char* rep);
+
 void SMOP_Close();
 
 #endif

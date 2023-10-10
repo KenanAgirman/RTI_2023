@@ -26,6 +26,7 @@ public:
     int getQuantite();
     void loginOK();
     void logoutOK();
+    void getArticle(int id);
     void setArticle(const char *intitule, float prix, int stock, const char *image);
     void setTotal(float montant);
 

@@ -91,7 +91,13 @@ bool SMOP(char *requete, char *reponse, int socket,MYSQL* connexion)
 	 }
 
 	}
+    if (strcmp(ptr,"CONSULT") == 0)
+    {
+        int idid;
+        idid = atoi(strtok(NULL,"#"));
 
+        SMOP_Consult(idid, connexion,reponse);
+    }
 	// ***** LOGOUT *****************************************
 	if(strcmp(ptr,"LOGOUT") == 0)
 	{
@@ -190,6 +196,51 @@ int nouveauClientDansBD(const char* user, const char* password, MYSQL* connexion
         return false;
     }
 }
+
+void SMOP_Consult(int id, MYSQL* connexion, char* rep)
+{
+    printf("JE CONSULTE\n");
+
+    char requete[100];
+    MYSQL_ROW row;
+    MYSQL_RES* resultat;
+
+    sprintf(requete, "SELECT * FROM articles WHERE id = %d;", id);
+
+    if (mysql_query(connexion, requete) != 0)
+    {
+        fprintf(stderr, "Erreur de mysql_query: %s\n", mysql_error(connexion));
+        exit(1);
+    }
+
+    if ((resultat = mysql_store_result(connexion)) == NULL)
+    {
+        fprintf(stderr, "Erreur de mysql_store_result: %s\n", mysql_error(connexion));
+        exit(1);
+    }
+
+    while ((row = mysql_fetch_row(resultat)) != NULL)
+    {
+        int id = atoi(row[0]);
+        const char* intitule = row[1];
+        float prix = atof(row[2]);
+        int stock = atoi(row[3]);
+        const char* image = row[4];
+
+        sprintf(rep, "CONSULT#%d#%s#%.2f#%d#%s", id,intitule, prix, stock, image);
+
+        printf("ID: %d\n", id);
+        printf("Intitulé: %s\n", intitule);
+        printf("Prix: %.2f\n", prix);
+        printf("Stock: %d\n", stock);
+        printf("Image: %s\n", image);
+    }
+
+    mysql_free_result(resultat);
+}
+
+
+
 //***** Gestion de l'état du protocole ******************************
 int estPresent(int socket)
 {
