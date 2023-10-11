@@ -91,13 +91,59 @@ bool SMOP(char *requete, char *reponse, int socket,MYSQL* connexion)
 	 }
 
 	}
-    if (strcmp(ptr,"CONSULT") == 0)
-    {
-        int idid;
-        idid = atoi(strtok(NULL,"#"));
+	else
+	{
+		if (strcmp(ptr,"CONSULT") == 0)
+		 {
+		        int idid;
+		        idid = atoi(strtok(NULL,"#"));
 
-        SMOP_Consult(idid, connexion,reponse);
-    }
+		        SMOP_Consult(idid, connexion,reponse);
+		   }
+
+		    if (strcmp(ptr,"CANCEL") == 0)
+		    {
+		        int idid,Quantite;
+
+		        idid = atoi(strtok(NULL,"#"));
+		        Quantite = atoi(strtok(NULL,"#"));
+		        SMOP_CANCEL(idid, connexion,reponse,Quantite);
+		    }
+			if (strcmp(ptr, "CANCELALL") == 0)
+			{
+			    int idid, Quantite;
+			    char delim[100] = "";
+			    idid = atoi(strtok(NULL, "#"));
+
+			    if (idid > 0)
+			    {
+			        int i = 1;
+
+			        strcat(delim, strtok(NULL, "#"));
+
+			        while (i < idid)
+			        {
+			            strcat(delim, "#");
+			            char *token = strtok(NULL, "#");
+			            if (token)
+			            {
+			                strcat(delim, token);
+			                i++;
+			            }
+			            else
+			            {
+			                printf("Données manquantes dans la réponse.\n");
+			                break;
+			            }
+			        }
+
+			        printf("REQUETE IDI reponse %s/%d/%s\n", requete, idid, reponse);
+
+			        SMOP_Cancel_All(requete, idid, reponse, connexion);
+			    }
+			
+			}
+	}
 
     if (strcmp(ptr,"ACHAT") == 0)
     {
@@ -106,6 +152,18 @@ bool SMOP(char *requete, char *reponse, int socket,MYSQL* connexion)
 		Quantite = atoi(strtok(NULL,"#"));
 
         SMOP_ACHAT(idid, connexion,reponse,Quantite);
+    }
+    else
+    {
+    	if(strcmp(ptr,"CONFIRMER")==0)
+	    {
+	    	int idid, Quantite;
+			char delim[100] = "";
+			idid = atoi(strtok(NULL, "#"));
+
+			SMOP_CONFIRM(requete, idid, reponse, connexion);
+		}
+	    
     }
 
 	// ***** LOGOUT *****************************************
@@ -252,21 +310,18 @@ void SMOP_Consult(int id, MYSQL* connexion, char* rep)
 
 void SMOP_ACHAT(int id,MYSQL* connexion,char* rep,int quantite)
 {
- printf("J'achète\n");
+ 	printf("J'achète\n");
 
     char requete[200];
     MYSQL_RES* resultat;
     MYSQL_ROW tuple;
 
-    char table[20];
-    strcpy(table, "articles");
-
-    sprintf(requete, "select * from %s where id = %d;", table, id);
+    sprintf(requete, "select * from articles where id = %d;", id);
 
     if (mysql_query(connexion, requete) != 0)
     {
         fprintf(stderr, "Erreur de mysql_query: %s\n", mysql_error(connexion));
-        sprintf(rep, "ACHAT#%d#-1", id); // Erreur SQL, retourne -1
+        sprintf(rep, "ACHAT#%d#-1", id); 
         return;
     }
 
@@ -275,7 +330,7 @@ void SMOP_ACHAT(int id,MYSQL* connexion,char* rep,int quantite)
     if ((resultat = mysql_store_result(connexion)) == NULL)
     {
         fprintf(stderr, "Erreur de mysql_store_result: %s\n", mysql_error(connexion));
-        sprintf(rep, "ACHAT#%d#-1", id); // Erreur de stockage des résultats, retourne -1
+        sprintf(rep, "ACHAT#%d#-1", id); 
         return;
     }
 
@@ -285,18 +340,18 @@ void SMOP_ACHAT(int id,MYSQL* connexion,char* rep,int quantite)
 
         if (stock < quantite)
         {
-            sprintf(rep, "ACHAT#%d#0", id); // Stock insuffisant, retourne 0
+            sprintf(rep, "ACHAT#%d#0", id);
         }
         else
         {
             int newStock = stock - quantite;
 
-            sprintf(requete, "update %s set stock = %d where id = %d;", table, newStock, id);
+            sprintf(requete, "update articles set stock = %d where id = %d;",  newStock, id);
 
             if (mysql_query(connexion, requete) != 0)
             {
                 fprintf(stderr, "Erreur de mysql_query: %s\n", mysql_error(connexion));
-                sprintf(rep, "ACHAT#%d#-1", id); // Erreur SQL lors de la mise à jour du stock, retourne -1
+                sprintf(rep, "ACHAT#%d#-1", id); 
             }
             else
             {
@@ -307,10 +362,69 @@ void SMOP_ACHAT(int id,MYSQL* connexion,char* rep,int quantite)
     }
     else
     {
-        sprintf(rep, "ACHAT#-1"); // Article non trouvé, retourne -1
+        sprintf(rep, "ACHAT#-1");
     }
 
     mysql_free_result(resultat);
+}
+
+void SMOP_CANCEL(int id,MYSQL* connexion,char* rep,int qauntite)
+{
+  	printf("J'annule\n");
+
+    char requete[200];
+    MYSQL_RES* resultat;
+    MYSQL_ROW tuple;
+
+
+    sprintf(requete, "SELECT * FROM articles WHERE id = %d;", id);
+
+    if (mysql_query(connexion, requete) != 0)
+    {
+        fprintf(stderr, "Erreur de mysql_query: %s\n", mysql_error(connexion));
+        sprintf(rep, "CANCEL#-1"); // Échec de la requête SQL
+        return;
+    }
+
+    printf("Requête SELECT réussie sur Cancel.\n");
+
+    if ((resultat = mysql_store_result(connexion)) == NULL)
+    {
+        fprintf(stderr, "Erreur de mysql_store_result: %s\n", mysql_error(connexion));
+        sprintf(rep, "CANCEL#-1"); 
+        return;
+    }
+
+    if ((tuple = mysql_fetch_row(resultat)) != NULL)
+    {
+        int newStock = atoi(tuple[3]) + qauntite;
+
+        sprintf(requete, "UPDATE articles SET stock = %d WHERE id = %d;", newStock, id);
+
+        if (mysql_query(connexion, requete) != 0) {
+            fprintf(stderr, "Erreur de mysql_query: %s\n", mysql_error(connexion));
+            sprintf(rep, "CANCEL#-1"); 
+        } 
+        else
+        {
+            printf("Requête UPDATE réussie.\n");
+            sprintf(rep, "CANCEL#%d#%d", id, newStock); 
+        }
+    } 
+    else
+    {
+        sprintf(rep, "CANCEL#-1");
+    }
+}
+void SMOP_Cancel_All(char *requete, int nbArti, char *rep, MYSQL *connexion)
+{
+	printf("Requête = %s/%s\n",requete,rep);
+
+	sprintf(rep, "CANCELALL#1");
+}
+void SMOP_CONFIRM(char *requete,int nbArti, char* rep, MYSQL* connexion)
+{
+	sprintf(rep, "CONFIRMER#1");
 }
 
 

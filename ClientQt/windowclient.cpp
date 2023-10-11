@@ -21,7 +21,8 @@ typedef struct
 
 ARTICLE ArtcileCourant;
 ARTICLE Caddie[MAXCADDIE];
-
+int nbArticles = 0;
+float totalCaddie = 0.0;
 #define REPERTOIRE_IMAGES "ClientQt/images/"
 
 WindowClient::WindowClient(int sClient,QWidget *parent) : QMainWindow(parent), ui(new Ui::WindowClient)
@@ -430,6 +431,18 @@ void WindowClient::on_pushButtonAcheter_clicked()
   int nbEcrits, nbLus;
   int quantite = getQuantite();
 
+  int i = 0;
+
+  while(Caddie[i].id != ArtcileCourant.id && i < MAXCADDIE){
+            i++;
+  } 
+
+  if(nbArticles == MAXCADDIE && i == MAXCADDIE)
+  {
+    dialogueMessage("Achat", "votre panier est plein, attention!");
+    exit(1);
+  }
+
   if(quantite==0)
   {
     dialogueMessage("Fruits","ERREUR");
@@ -479,12 +492,67 @@ void WindowClient::on_pushButtonAcheter_clicked()
     else
     {
       int qt = atoi(strtok(NULL,"#"));
+      printf("id = %d\n",id);
 
       ArtcileCourant.id = id;
       ArtcileCourant.stock = qt - getQuantite();
       ArtcileCourant.prix = atof(strtok(NULL,"#"));
 
       setArticle(ArtcileCourant.intitule, ArtcileCourant.prix, ArtcileCourant.stock , ArtcileCourant.image);
+      printf("id = %d\n",id);
+
+      if(i == MAXCADDIE)
+      {
+          printf("id = %d\n",id);
+
+          i = 0;
+          printf("J'ajoute un article \n");
+
+          printf("AVICAD =%d\n",i);
+          printf("MAXCADDIE =%d\n",MAXCADDIE);
+          while(Caddie[i].id != 0 && i < MAXCADDIE) i++;
+          printf("APICAD =%d\n",i);
+
+          Caddie[i].id = ArtcileCourant.id;
+          strcpy(Caddie[i].intitule, ArtcileCourant.intitule);
+          Caddie[i].prix = ArtcileCourant.prix;
+          Caddie[i].stock = getQuantite();
+          strcpy(Caddie[i].image, ArtcileCourant.image);
+          
+          ajouteArticleTablePanier(Caddie[i].intitule, Caddie[i].prix, Caddie[i].stock);
+          
+          totalCaddie = totalCaddie + (Caddie[i].stock*Caddie[i].prix);
+
+          setTotal(totalCaddie);
+
+          nbArticles++;
+      }
+      else
+      {
+          printf("avant i = %d\n",i);
+          printf("nbArticles nbArticles =%d\n",nbArticles);
+          videTablePanier();
+
+          Caddie[i].stock = Caddie[i].stock + getQuantite();
+          totalCaddie = 0.0;
+          setTotal(-1.0);
+          printf("iciciciciciciejiduaznedxn\n");
+          i = 0;
+
+          while(i < nbArticles)
+          {
+            printf("kenankenneeknakenzn\n");
+            printf("nbArticles nbArticles =%d\n",nbArticles);
+           printf("apres i = %d\n",i);
+
+            ajouteArticleTablePanier(Caddie[i].intitule, Caddie[i].prix, Caddie[i].stock);
+            totalCaddie = totalCaddie + (Caddie[i].stock*Caddie[i].prix);
+
+            i++;
+          }
+
+          setTotal(totalCaddie);
+      }
     }
 
         
@@ -495,21 +563,188 @@ void WindowClient::on_pushButtonAcheter_clicked()
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void WindowClient::on_pushButtonSupprimer_clicked()
-{
+void WindowClient::on_pushButtonSupprimer_clicked() {
 
+ char requete[200], reponse[200];
+ int nbEcrits, nbLus;
+
+  int indice = getIndiceArticleSelectionne();
+
+  printf("INDICE = %d\n", indice);
+
+  if (indice == -1)
+  {
+        dialogueMessage("Erreur", "Erreur");
+  }
+  else
+  {
+        sprintf(requete, "CANCEL#%d#%d", Caddie[indice].id, Caddie[indice].stock);
+
+        if ((nbEcrits = Send(sClientClient, requete, strlen(requete))) == -1)
+        {
+            perror("Erreur de Send");
+            exit(1);
+        }
+        printf("NbEcrits = %d\n", nbEcrits);
+        printf("Ecrit = --%s--\n", requete);
+
+        if ((nbLus = Receive(sClientClient, reponse)) < 0)
+        {
+            perror("Erreur de Receive");
+            exit(1);
+        }
+
+        printf("NbLus = %d\n", nbLus);
+        reponse[nbLus] = 0;
+        printf("Lu = --%s--\n", reponse);
+
+        char *ptr = strtok(reponse, "#");
+
+        if (strcmp(ptr, "CANCEL") == 0)
+        {
+            int newID;
+            newID = atoi(strtok(NULL, "#"));
+
+            printf("newID =newID %d\n",newID);
+
+            if (newID != -1)
+            {
+                if (ArtcileCourant.id == newID)
+                {
+                    ArtcileCourant.stock = atoi(strtok(NULL, "#"));
+                    setArticle(ArtcileCourant.intitule, ArtcileCourant.prix, ArtcileCourant.stock, ArtcileCourant.image);
+                }
+
+                if (indice < nbArticles - 1)
+                {
+                    for (int i = indice; i < nbArticles - 1; i++)
+                    {
+                        Caddie[i] = Caddie[i + 1];
+                    }
+                }
+
+                Caddie[nbArticles - 1].id = 0;
+                nbArticles--;
+
+                videTablePanier();
+
+                totalCaddie = 0.0;
+                setTotal(-1.0);
+
+                for (int i = 0; i < nbArticles; i++)
+                {
+                    ajouteArticleTablePanier(Caddie[i].intitule, Caddie[i].prix, Caddie[i].stock);
+                    totalCaddie += Caddie[i].stock * Caddie[i].prix;
+                }
+
+                setTotal(totalCaddie);
+            }
+            else
+            {
+                dialogueErreur("Cancel", "Erreur");
+            }
+        }
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void WindowClient::on_pushButtonViderPanier_clicked()
 {
+  char requete[200],reponse[100];
+  sprintf(requete,"CANCELALL#%d", nbArticles);
+  int nbEcrits,nbLus;
 
+  for (int i = 0; i < 10 && Caddie[i].id != 0; i++)
+  {
+      sprintf(requete + strlen(requete), "#%d&%d", Caddie[i].id, Caddie[i].stock);
+  }
+
+  if((nbEcrits = Send(sClientClient, requete, strlen(requete))) == -1)
+  {
+    perror("Erreur de Send");
+    exit(1);
+  }
+  
+  printf("NbEcrits = %d\n", nbEcrits);
+  printf("Ecrit = --%s--\n", requete);
+
+  if((nbLus = Receive(sClientClient, reponse)) < 0)
+  {
+    perror("Erreur de Receive");
+     exit(1);
+  }
+
+  printf("NbLus = %d\n", nbLus);
+  reponse[nbLus] = 0;
+  printf("Lu = --%s--\n", reponse);
+
+  char *ptr = strtok(reponse,"#");
+
+
+  if (strcmp(ptr,"CANCELALL") == 0)
+  {
+    printf("leilielallala\n");
+      videTablePanier();
+
+      totalCaddie = 0.0;
+      setTotal(-1.0);
+      for(int i = 0; i<MAXCADDIE; i++)
+      {
+        printf("je suis passé icic;<;w;\n");
+          Caddie[i].id = 0;
+          Caddie[i].intitule[0] = '\0';
+          Caddie[i].prix = 0.0;
+          Caddie[i].stock = 0;
+          Caddie[i].image[0] = '\0';
+
+         setArticle(ArtcileCourant.intitule, ArtcileCourant.prix, ArtcileCourant.stock , ArtcileCourant.image);
+
+      }
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void WindowClient::on_pushButtonPayer_clicked()
 {
+    char requete[200],reponse[200];
+    int nbEcrits,nbLus;
 
+    sprintf(requete,"CONFIRMER#%d", nbArticles);
+
+
+    if((nbEcrits = Send(sClientClient,requete,strlen(requete))) == -1)
+    {
+      perror("Erreur de Send");
+      exit(1);
+    }
+
+ 
+    printf("NbEcrits = %d\n",nbEcrits);
+    printf("Ecrit = --%s--\n",requete);
+
+
+    if((nbLus = Receive(sClientClient,reponse)) < 0)
+    {
+      perror("Erreur de Receive");
+      exit(1);
+    }
+  
+    printf("NbLus = %d\n",nbLus);
+    reponse[nbLus] = 0;
+    printf("Lu = --%s--\n",reponse);
+
+    char *ptr = strtok(reponse,"#");
+
+    if (strcmp(ptr,"CONFIRMER") == 0) 
+    {
+        videTablePanier();
+
+        totalCaddie = 0.0;
+        setTotal(-1.0);
+
+
+        dialogueMessage("facture","payer");
+    }
 }
 void WindowClient::getArticle(int id)
 {

@@ -12,6 +12,12 @@ void SMOP_Consult(int id,MYSQL* connexion,char* rep);
 
 void SMOP_ACHAT(int id,MYSQL* connexion,char* rep,int qauntite);
 
+void SMOP_CANCEL(int id,MYSQL* connexion,char* rep,int qauntite);
+
+void SMOP_Cancel_All(char *requete,int nbArti, char* rep, MYSQL* connexion);
+
+void SMOP_CONFIRM(char *requete,int nbArti, char* rep, MYSQL* connexion);
+
 void SMOP_Close();
 
 #endif
