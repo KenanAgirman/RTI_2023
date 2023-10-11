@@ -8,7 +8,7 @@ using namespace std;
 extern WindowClient *w;
 bool logged = false;
 int sClientClient;
-
+#define MAXCADDIE 10
 
 typedef struct
 {
@@ -20,7 +20,7 @@ typedef struct
 } ARTICLE;
 
 ARTICLE ArtcileCourant;
-ARTICLE Caddie[10];
+ARTICLE Caddie[MAXCADDIE];
 
 #define REPERTOIRE_IMAGES "ClientQt/images/"
 
@@ -43,11 +43,16 @@ WindowClient::WindowClient(int sClient,QWidget *parent) : QMainWindow(parent), u
     ui->tableWidgetPanier->horizontalHeader()->setStyleSheet("background-color: lightyellow");
 
     ui->pushButtonPayer->setText("Confirmer achat");
-    //setPublicite("!!! Bienvenue sur le Maraicher en ligne !!!");
 
-    // Exemples à supprimer
-    // setArticle("cerises",5.53,18,"cerises.jpg");
-    // ajouteArticleTablePanier("valentin",8.96,2);
+ 
+    int i = 0;
+
+    while(i<MAXCADDIE)
+    {
+      printf("CADIE =%d\n",Caddie[i].id);
+      Caddie[i].id = 0;
+      i++;
+    }
 
     sClientClient = sClient;
 }
@@ -420,6 +425,72 @@ void WindowClient::on_pushButtonPrecedent_clicked()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void WindowClient::on_pushButtonAcheter_clicked()
 {
+  char requete[200],reponse[200],reponseConnecte[100];
+
+  int nbEcrits, nbLus;
+  int quantite = getQuantite();
+
+  if(quantite==0)
+  {
+    dialogueMessage("Fruits","ERREUR");
+  }
+  else
+  {
+    sprintf(requete,"ACHAT#%d#%d", ArtcileCourant.id, getQuantite());
+
+    if((nbEcrits = Send(sClientClient,requete,strlen(requete))) == -1)
+    {
+      perror("Erreur de Send");
+      exit(1);
+    }
+    printf("NbEcrits = %d\n",nbEcrits);
+    printf("Ecrit = --%s--\n",requete);
+
+
+   if((nbLus = Receive(sClientClient,reponse)) < 0)
+   {
+     perror("Erreur de Receive");
+     exit(1);
+   }
+        
+   printf("NbLus = %d\n",nbLus);
+   reponse[nbLus] = 0;
+   printf("Lu = --%s--\n",reponse);
+  
+
+   char *ptr = strtok(reponse,"#");
+   printf("ptr = %s\n",ptr);
+  
+   if(strcmp(ptr,"ACHAT") == 0) 
+   {
+    
+    strcpy(reponseConnecte,strtok(NULL,"#"));
+    printf("ptr = %s\n",ptr);
+    printf("SE = %s\n",reponseConnecte);
+
+    int id = atoi(strtok(NULL,"#"));
+
+    printf("id = %d\n",id);
+
+    if(id==0)
+    {
+      dialogueMessage("Stock","Insuffisante");
+    }
+    else
+    {
+      int qt = atoi(strtok(NULL,"#"));
+
+      ArtcileCourant.id = id;
+      ArtcileCourant.stock = qt - getQuantite();
+      ArtcileCourant.prix = atof(strtok(NULL,"#"));
+
+      setArticle(ArtcileCourant.intitule, ArtcileCourant.prix, ArtcileCourant.stock , ArtcileCourant.image);
+    }
+
+        
+   }
+
+  }
 
 }
 
@@ -478,7 +549,7 @@ void WindowClient::getArticle(int id)
     char intitule[20], image[20];
     float prix;
     int stock;
-    printf("newID = %d\n",idBD);
+    printf("idBD = %d\n",idBD);
 
     strcpy(intitule,strtok(NULL,"#"));
     stock = atoi(strtok(NULL,"#"));

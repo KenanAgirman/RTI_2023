@@ -98,6 +98,16 @@ bool SMOP(char *requete, char *reponse, int socket,MYSQL* connexion)
 
         SMOP_Consult(idid, connexion,reponse);
     }
+
+    if (strcmp(ptr,"ACHAT") == 0)
+    {
+        int idid,Quantite;
+        idid = atoi(strtok(NULL,"#"));
+		Quantite = atoi(strtok(NULL,"#"));
+
+        SMOP_ACHAT(idid, connexion,reponse,Quantite);
+    }
+
 	// ***** LOGOUT *****************************************
 	if(strcmp(ptr,"LOGOUT") == 0)
 	{
@@ -146,6 +156,7 @@ bool SMOP_Login(const char* user, const char* password, MYSQL* connexion)
         }
     }
 
+    return false;
 }
 
 int nouveauClientDansBD(const char* user, const char* password, MYSQL* connexion)
@@ -239,6 +250,68 @@ void SMOP_Consult(int id, MYSQL* connexion, char* rep)
     mysql_free_result(resultat);
 }
 
+void SMOP_ACHAT(int id,MYSQL* connexion,char* rep,int quantite)
+{
+ printf("J'achète\n");
+
+    char requete[200];
+    MYSQL_RES* resultat;
+    MYSQL_ROW tuple;
+
+    char table[20];
+    strcpy(table, "articles");
+
+    sprintf(requete, "select * from %s where id = %d;", table, id);
+
+    if (mysql_query(connexion, requete) != 0)
+    {
+        fprintf(stderr, "Erreur de mysql_query: %s\n", mysql_error(connexion));
+        sprintf(rep, "ACHAT#%d#-1", id); // Erreur SQL, retourne -1
+        return;
+    }
+
+    printf("Requête SELECT réussie sur Achat.\n");
+
+    if ((resultat = mysql_store_result(connexion)) == NULL)
+    {
+        fprintf(stderr, "Erreur de mysql_store_result: %s\n", mysql_error(connexion));
+        sprintf(rep, "ACHAT#%d#-1", id); // Erreur de stockage des résultats, retourne -1
+        return;
+    }
+
+    if ((tuple = mysql_fetch_row(resultat)) != NULL)
+    {
+        int stock = atoi(tuple[3]);
+
+        if (stock < quantite)
+        {
+            sprintf(rep, "ACHAT#%d#0", id); // Stock insuffisant, retourne 0
+        }
+        else
+        {
+            int newStock = stock - quantite;
+
+            sprintf(requete, "update %s set stock = %d where id = %d;", table, newStock, id);
+
+            if (mysql_query(connexion, requete) != 0)
+            {
+                fprintf(stderr, "Erreur de mysql_query: %s\n", mysql_error(connexion));
+                sprintf(rep, "ACHAT#%d#-1", id); // Erreur SQL lors de la mise à jour du stock, retourne -1
+            }
+            else
+            {
+                printf("Requête UPDATE réussie.\n");
+                sprintf(rep, "ACHAT#%d#%d#%s#%.2f", id, quantite, tuple[1], atof(tuple[2])); // Achat réussi, retourne les détails de l'article
+            }
+        }
+    }
+    else
+    {
+        sprintf(rep, "ACHAT#-1"); // Article non trouvé, retourne -1
+    }
+
+    mysql_free_result(resultat);
+}
 
 
 //***** Gestion de l'état du protocole ******************************
