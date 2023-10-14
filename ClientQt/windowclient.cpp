@@ -299,73 +299,58 @@ void WindowClient::on_pushButtonLogin_clicked()
 {
     const char* nom = getNom();
     const char* password = getMotDePasse();
-    char requete[200],reponse[200],reponseConnecte[10];
+    char requete[200], reponse[200], reponseConnecte[10];
 
-    int nbEcrits, nbLus;
-
-    if(strlen(nom)==0) dialogueErreur("Login","Erreur le champ login est vide");
-    else if(strlen(password)==0) dialogueErreur("password","Erreur le champ password est vide");
-    else
+    if (strlen(nom) == 0)
     {
-        printf("Voici le nom = %s\n", nom);
-        printf("Voici le mot de passe = %s\n", password);
+        dialogueErreur("Login", "Erreur le champ login est vide");
+        return;
+    }
+    else if (strlen(password) == 0)
+    {
+        dialogueErreur("password", "Erreur le champ password est vide");
+        return;
+    }
 
-        sprintf(requete, "LOGIN#%s#%s#%d\n", nom, password, isNouveauClientChecked());
-        printf("REQUETE  requete requete requete requete =%s\n",requete);
-        
-        int taille = strlen(requete);
+    printf("Voici le nom = %s\n", nom);
+    printf("Voici le mot de passe = %s\n", password);
 
-        printf("sClientClient,REQUETE,strlen(requete) = %d/%s/%d\n",sClientClient,requete,taille);
+    sprintf(requete, "LOGIN#%s#%s#%d\n", nom, password, isNouveauClientChecked());
+    printf("REQUETE  requete requete requete requete = %s\n", requete);
 
-        if((nbEcrits = Send(sClientClient,requete,strlen(requete))) == -1)
+    char response[200];
+    SendReceive(requete, sClientClient, response, sizeof(response));
+
+    char *ptr = strtok(response, "#");
+    printf("ptr = %s\n", ptr);
+
+    if (strcmp(ptr, "LOGIN") == 0)
+    {
+        strcpy(reponseConnecte, strtok(NULL, "#"));
+        printf("ptr = %s\n", ptr);
+        printf("SE = %s\n", reponseConnecte);
+
+        if (strcmp(reponseConnecte, "ok") == 0)
         {
-            perror("Erreur de Send");
-            exit(1);
-        }
-
-        printf("NbEcrits = %d\n",nbEcrits);
-        printf("Ecrit = --%s--\n",requete);
-
-      
-        if((nbLus = Receive(sClientClient,reponse)) < 0)
-        {
-          perror("Erreur de Receive");
-          exit(1);
-        }
-        
-         printf("NbLus = %d\n",nbLus);
-         reponse[nbLus] = 0;
-         printf("Lu = --%s--\n",reponse);
-
-        char *ptr = strtok(reponse,"#");
-        printf("ptr = %s\n",ptr);
-        if (strcmp(ptr,"LOGIN") == 0) 
-        {
-          strcpy(reponseConnecte,strtok(NULL,"#"));
-          printf("ptr = %s\n",ptr);
-          printf("SE = %s\n",reponseConnecte);
-
-          if (strcmp(reponseConnecte,"ok") == 0) 
-          {
             getArticle(1);
-            if(isNouveauClientChecked() == 1)
+            if (isNouveauClientChecked() == 1)
             {
-              dialogueMessage("Login", "ok");
+                dialogueMessage("Login", "ok");
             }
 
-            printf("SE1 = %s\n",reponseConnecte);
+            printf("SE1 = %s\n", reponseConnecte);
             dialogueMessage("Login", "Connexion établie");
 
             loginOK();
             setPublicite("TROP CHAUD BEAUGOSSE");
-          }
-          else
-          {
+        }
+        else
+        {
             setPublicite("PAS BON\n");
-          }
-      }
-  }
+        }
+    }
 }
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void WindowClient::on_pushButtonLogout_clicked()
@@ -433,7 +418,8 @@ void WindowClient::on_pushButtonAcheter_clicked()
 
   int i = 0;
 
-  while(Caddie[i].id != ArtcileCourant.id && i < MAXCADDIE){
+  while(Caddie[i].id != ArtcileCourant.id && i < MAXCADDIE)
+  {
             i++;
   } 
 
@@ -754,26 +740,11 @@ void WindowClient::getArticle(int id)
 
   sprintf(requete,"CONSULT#%d",id);
 
-
-  if((nbEcrits = Send(sClientClient,requete,strlen(requete))) == -1)
-  {
-    perror("Erreur de Send");
-    exit(1);
-  }
-
-  printf("NbEcrits = %d\n",nbEcrits);
-  printf("Ecrit = --%s--\n",requete);
-
-
-  if((nbLus = Receive(sClientClient,reponse)) < 0)
-  {
-      perror("Erreur de Receive");
-      exit(1);
-  }
+  SendReceive(requete, sClientClient, reponse, sizeof(reponse));
 
   printf("NbLus = %d\n",nbLus);
-  reponse[nbLus] = 0;
   printf("Lu = --%s--\n",reponse);
+
   char *ptr = strtok(reponse,"#");
 
   if (strcmp(ptr,"CONSULT") == 0) 
@@ -800,4 +771,22 @@ void WindowClient::getArticle(int id)
     strcpy(ArtcileCourant.image, image);
 
   }
+}
+void WindowClient::SendReceive(char* request, int socket, char* response, int responseSize)
+{
+    int nbEcrits = Send(socket, request, strlen(request));
+    if (nbEcrits == -1)
+    {
+        perror("Erreur de Send");
+        exit(1);
+    }
+
+    int nbLus = Receive(socket, response);
+    if (nbLus < 0)
+    {
+        perror("Erreur de Receive");
+        exit(1);
+    }
+
+    response[nbLus] = '\0';
 }

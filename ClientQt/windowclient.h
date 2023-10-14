@@ -36,6 +36,7 @@ public:
     
     // Clic sur la croix de la fenetre
     void closeEvent(QCloseEvent *event);
+    void SendReceive(char* request, int socket, char* response, int responseSize);
 
     // Boites de dialogue
     void dialogueMessage(const char *titre, const char *message);

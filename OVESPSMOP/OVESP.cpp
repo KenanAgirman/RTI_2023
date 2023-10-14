@@ -188,7 +188,7 @@ bool SMOP_Login(const char* user, const char* password, MYSQL* connexion)
     MYSQL_ROW row;
     MYSQL_RES* resultat;
 
-    sprintf(requete,"select * from utilisateurs where login = '%s';",user);
+    sprintf(requete,"select * from clients where login = '%s';",user);
 
     if (mysql_query(connexion,requete) != 0)
     {
