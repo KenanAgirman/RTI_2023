@@ -318,10 +318,9 @@ void WindowClient::on_pushButtonLogin_clicked()
     sprintf(requete, "LOGIN#%s#%s#%d\n", nom, password, isNouveauClientChecked());
     printf("REQUETE  requete requete requete requete = %s\n", requete);
 
-    char response[200];
-    SendReceive(requete, sClientClient, response, sizeof(response));
+    SendReceive(requete, sClientClient, reponse, sizeof(reponse));
 
-    char *ptr = strtok(response, "#");
+    char *ptr = strtok(reponse, "#");
     printf("ptr = %s\n", ptr);
 
     if (strcmp(ptr, "LOGIN") == 0)
@@ -412,139 +411,6 @@ void WindowClient::on_pushButtonPrecedent_clicked()
 void WindowClient::on_pushButtonAcheter_clicked()
 {
   char requete[200],reponse[200],reponseConnecte[100];
-
-  int nbEcrits, nbLus;
-  int quantite = getQuantite();
-
-  int i = 0;
-
-  while(Caddie[i].id != ArtcileCourant.id && i < MAXCADDIE)
-  {
-            i++;
-  } 
-
-  if(nbArticles == MAXCADDIE && i == MAXCADDIE)
-  {
-    dialogueMessage("Achat", "votre panier est plein, attention!");
-    exit(1);
-  }
-
-  if(quantite==0)
-  {
-    dialogueMessage("Fruits","ERREUR");
-  }
-  else
-  {
-    sprintf(requete,"ACHAT#%d#%d", ArtcileCourant.id, getQuantite());
-
-    if((nbEcrits = Send(sClientClient,requete,strlen(requete))) == -1)
-    {
-      perror("Erreur de Send");
-      exit(1);
-    }
-    printf("NbEcrits = %d\n",nbEcrits);
-    printf("Ecrit = --%s--\n",requete);
-
-
-   if((nbLus = Receive(sClientClient,reponse)) < 0)
-   {
-     perror("Erreur de Receive");
-     exit(1);
-   }
-        
-   printf("NbLus = %d\n",nbLus);
-   reponse[nbLus] = 0;
-   printf("Lu = --%s--\n",reponse);
-  
-
-   char *ptr = strtok(reponse,"#");
-   printf("ptr = %s\n",ptr);
-  
-   if(strcmp(ptr,"ACHAT") == 0) 
-   {
-    
-    strcpy(reponseConnecte,strtok(NULL,"#"));
-    printf("ptr = %s\n",ptr);
-    printf("SE = %s\n",reponseConnecte);
-
-    int id = atoi(strtok(NULL,"#"));
-
-    printf("id = %d\n",id);
-
-    if(id==0)
-    {
-      dialogueMessage("Stock","Insuffisante");
-    }
-    else
-    {
-      int qt = atoi(strtok(NULL,"#"));
-      printf("id = %d\n",id);
-
-      ArtcileCourant.id = id;
-      ArtcileCourant.stock = qt - getQuantite();
-      ArtcileCourant.prix = atof(strtok(NULL,"#"));
-
-      setArticle(ArtcileCourant.intitule, ArtcileCourant.prix, ArtcileCourant.stock , ArtcileCourant.image);
-      printf("id = %d\n",id);
-
-      if(i == MAXCADDIE)
-      {
-          printf("id = %d\n",id);
-
-          i = 0;
-          printf("J'ajoute un article \n");
-
-          printf("AVICAD =%d\n",i);
-          printf("MAXCADDIE =%d\n",MAXCADDIE);
-          while(Caddie[i].id != 0 && i < MAXCADDIE) i++;
-          printf("APICAD =%d\n",i);
-
-          Caddie[i].id = ArtcileCourant.id;
-          strcpy(Caddie[i].intitule, ArtcileCourant.intitule);
-          Caddie[i].prix = ArtcileCourant.prix;
-          Caddie[i].stock = getQuantite();
-          strcpy(Caddie[i].image, ArtcileCourant.image);
-          
-          ajouteArticleTablePanier(Caddie[i].intitule, Caddie[i].prix, Caddie[i].stock);
-          
-          totalCaddie = totalCaddie + (Caddie[i].stock*Caddie[i].prix);
-
-          setTotal(totalCaddie);
-
-          nbArticles++;
-      }
-      else
-      {
-          printf("avant i = %d\n",i);
-          printf("nbArticles nbArticles =%d\n",nbArticles);
-          videTablePanier();
-
-          Caddie[i].stock = Caddie[i].stock + getQuantite();
-          totalCaddie = 0.0;
-          setTotal(-1.0);
-          printf("iciciciciciciejiduaznedxn\n");
-          i = 0;
-
-          while(i < nbArticles)
-          {
-            printf("kenankenneeknakenzn\n");
-            printf("nbArticles nbArticles =%d\n",nbArticles);
-           printf("apres i = %d\n",i);
-
-            ajouteArticleTablePanier(Caddie[i].intitule, Caddie[i].prix, Caddie[i].stock);
-            totalCaddie = totalCaddie + (Caddie[i].stock*Caddie[i].prix);
-
-            i++;
-          }
-
-          setTotal(totalCaddie);
-      }
-    }
-
-        
-   }
-
-  }
 
 }
 
@@ -747,6 +613,8 @@ void WindowClient::getArticle(int id)
 
   char *ptr = strtok(reponse,"#");
 
+  printf("PTR PTR =%s\n",ptr);
+
   if (strcmp(ptr,"CONSULT") == 0) 
   {
     int idBD;
@@ -758,10 +626,11 @@ void WindowClient::getArticle(int id)
     printf("idBD = %d\n",idBD);
 
     strcpy(intitule,strtok(NULL,"#"));
-    stock = atoi(strtok(NULL,"#"));
-    prix = atof(strtok(NULL,"#"));
+    prix = atoi(strtok(NULL,"#"));
+    stock = atof(strtok(NULL,"#"));
     strcpy(image,strtok(NULL,"#"));
 
+    // printf("intitule = %s,prix = %d, image = %s\n",intitule,s)
     setArticle(intitule, prix, stock , image);
 
     ArtcileCourant.id = idBD;

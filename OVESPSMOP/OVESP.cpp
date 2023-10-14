@@ -227,7 +227,7 @@ int nouveauClientDansBD(const char* user, const char* password, MYSQL* connexion
     MYSQL_RES* resultat;
 
 
-    sprintf(requete,"select * from utilisateurs where login = '%s';", user);
+    sprintf(requete,"select * from clients where login = '%s';", user);
 
     if (mysql_query(connexion,requete) != 0)
     {
@@ -251,7 +251,7 @@ int nouveauClientDansBD(const char* user, const char* password, MYSQL* connexion
     }
     else
     {
-        sprintf(requete,"insert into utilisateurs (login, MDP) values ('%s', '%s')",user, password);
+        sprintf(requete,"insert into clients (login, password) values ('%s', '%s')",user, password);
 
 
         if (mysql_query(connexion,requete) != 0)
@@ -296,7 +296,7 @@ void SMOP_Consult(int id, MYSQL* connexion, char* rep)
         int stock = atoi(row[3]);
         const char* image = row[4];
 
-        sprintf(rep, "CONSULT#%d#%s#%.2f#%d#%s", id,intitule, prix, stock, image);
+        sprintf(rep, "CONSULT#%d#%s#%f#%d#%s", id,intitule, prix, stock, image);
 
         printf("ID: %d\n", id);
         printf("Intitulé: %s\n", intitule);
