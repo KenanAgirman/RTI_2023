@@ -425,6 +425,9 @@ void WindowClient::on_pushButtonAcheter_clicked()
     strcpy(reponseConnecte, strtok(NULL, "#"));
     printf("ptr = %s\n", ptr);
     printf("SE = %s\n", reponseConnecte);
+    char intitule[30];
+    strcpy(intitule, strtok(NULL, "#"));
+
     if (strcmp(reponseConnecte, "0") == 0)
     {
       dialogueMessage("Stock", "Quantité trop élevée");
@@ -438,28 +441,53 @@ void WindowClient::on_pushButtonAcheter_clicked()
       else
       {
         int i = 0;
-        while(Caddie[i].id != 0 && i < 10) i++;
+        bool articleTrouve = false;
 
-        Caddie[i].id = ArtcileCourant.id;
-        strcpy(Caddie[i].intitule, ArtcileCourant.intitule);
-        Caddie[i].prix = ArtcileCourant.prix;
-        Caddie[i].stock = qauntiteSelec;
-        strcpy(Caddie[i].image, ArtcileCourant.image);
-        ajouteArticleTablePanier(Caddie[i].intitule, Caddie[i].prix, Caddie[i].stock);
-        dialogueMessage("Achat", "effectué");
-        nbArticles++; // Incrémente le nombre d'articles dans le caddi
+        while (i < MAXCADDIE && (Caddie[i].id != 0))
+        {
+          if (Caddie[i].id == ArtcileCourant.id)
+          {
+            Caddie[i].stock += qauntiteSelec;
+            ajouteArticleTablePanier(Caddie[i].intitule, Caddie[i].prix, Caddie[i].stock);
+            dialogueMessage("Achat", intitule);
+            articleTrouve = true;
+            totalCaddie = totalCaddie + (qauntiteSelec * Caddie[i].prix);
+            setTotal(totalCaddie);
+          }
+          i++;
+        }
+
+        if (!articleTrouve)
+        {
+          if (i == MAXCADDIE)
+          {
+            dialogueMessage("STOP", "Caddie rempli");
+          }
+          else
+          {
+            Caddie[i].id = ArtcileCourant.id;
+            strcpy(Caddie[i].intitule, ArtcileCourant.intitule);
+            Caddie[i].prix = ArtcileCourant.prix;
+            Caddie[i].stock = qauntiteSelec;
+            strcpy(Caddie[i].image, ArtcileCourant.image);
+            ajouteArticleTablePanier(Caddie[i].intitule, Caddie[i].prix, Caddie[i].stock);
+            dialogueMessage("Achat", intitule);
+            totalCaddie = totalCaddie + (qauntiteSelec * Caddie[i].prix);
+            setTotal(totalCaddie);
+            nbArticles++;
+          }
+        }
       }
     }
   }
 }
 
 
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void WindowClient::on_pushButtonSupprimer_clicked() {
-
- char requete[200], reponse[200];
- int nbEcrits, nbLus;
+void WindowClient::on_pushButtonSupprimer_clicked()
+{
+  char requete[200], reponse[200];
+  int nbEcrits, nbLus;
 
   int indice = getIndiceArticleSelectionne();
 

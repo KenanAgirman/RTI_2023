@@ -351,7 +351,7 @@ void SMOP_ACHAT(int id, MYSQL* connexion, char* rep, int quantite)
 					sprintf(rep, "ACHAT#-1");	    
 				}
 
-				sprintf(rep,"ACHAT#%s#%s#%s", row[0], row[3], row[2]);
+				sprintf(rep,"ACHAT#%s#%s#%s#%s", row[0], row[1],row[3], row[2]);
 
 		  	}
 		  }

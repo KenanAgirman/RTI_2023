@@ -1,0 +1,13 @@
+– Nom d’utilisateur : Student
+– Mot de passe utilisateur : PassStudent1_
+– Base de données : PourStudent
+– Table présente dans la base de données PourStudent : articles
+
+# mysql -u Student -p
+
+mysql> show databases;
+mysql> use PourStudent;
+mysql> show tables;
+mysql> describe articles;
+
+mysql> select * from articles;
