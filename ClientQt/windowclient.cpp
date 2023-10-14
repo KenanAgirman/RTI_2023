@@ -410,8 +410,39 @@ void WindowClient::on_pushButtonPrecedent_clicked()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void WindowClient::on_pushButtonAcheter_clicked()
 {
-  char requete[200],reponse[200],reponseConnecte[100];
+  char requete[100],reponse[100],reponseConnecte[100];
+  int qauntiteSelec = getQuantite();
 
+
+
+  sprintf(requete,"ACHAT#%d#%d",ArtcileCourant.id,qauntiteSelec);
+
+  SendReceive(requete, sClientClient, reponse, sizeof(reponse));
+  
+  char *ptr = strtok(reponse, "#");
+  printf("ptr = %s\n", ptr);
+
+  if (strcmp(ptr, "ACHAT") == 0)
+  {
+    strcpy(reponseConnecte, strtok(NULL, "#"));
+    printf("ptr = %s\n", ptr);
+    printf("SE = %s\n", reponseConnecte);
+    if (strcmp(reponseConnecte, "0") == 0)
+    { 
+      dialogueMessage("Stock","Quantité trop elevée");
+    }
+    else
+    {
+      if (strcmp(reponseConnecte, "-1") == 0)
+      {
+         dialogueMessage("Stock","Article non trouve");
+      }
+      else
+      {
+        dialogueMessage("Achat", "effectueé");
+      }
+    }
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
