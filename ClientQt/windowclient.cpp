@@ -360,24 +360,7 @@ void WindowClient::on_pushButtonLogout_clicked()
 
   sprintf(requete, "LOGOUT");
 
-  if((nbEcrits = Send(sClientClient,requete,strlen(requete))) == -1)
-  {
-    perror("Erreur de Send");
-     exit(1);
-  }
-  printf("NbEcrits = %d\n",nbEcrits);
-  printf("Ecrit = --%s--\n",requete);
-  
-
-  if((nbLus = Receive(sClientClient,reponse)) < 0)
-  {
-    perror("Erreur de Receive");
-    exit(1);
-  }
-        
-  printf("NbLus = %d\n",nbLus);
-  reponse[nbLus] = 0;
-  printf("Lu = --%s--\n",reponse);
+  SendReceive(requete, sClientClient, reponse, sizeof(reponse));
   
   char *ptr = strtok(reponse,"#");
   printf("ptr = %s\n",ptr);
@@ -499,25 +482,9 @@ void WindowClient::on_pushButtonSupprimer_clicked()
   }
   else
   {
-        sprintf(requete, "CANCEL#%d#%d", Caddie[indice].id, Caddie[indice].stock);
+     sprintf(requete, "CANCEL#%d#%d", Caddie[indice].id, Caddie[indice].stock);
 
-        if ((nbEcrits = Send(sClientClient, requete, strlen(requete))) == -1)
-        {
-            perror("Erreur de Send");
-            exit(1);
-        }
-        printf("NbEcrits = %d\n", nbEcrits);
-        printf("Ecrit = --%s--\n", requete);
-
-        if ((nbLus = Receive(sClientClient, reponse)) < 0)
-        {
-            perror("Erreur de Receive");
-            exit(1);
-        }
-
-        printf("NbLus = %d\n", nbLus);
-        reponse[nbLus] = 0;
-        printf("Lu = --%s--\n", reponse);
+       SendReceive(requete, sClientClient, reponse, sizeof(reponse));
 
         char *ptr = strtok(reponse, "#");
 
