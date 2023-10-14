@@ -33,7 +33,6 @@ public:
     void ajouteArticleTablePanier(const char *article, float prix, int quantite);
     void videTablePanier();
     int getIndiceArticleSelectionne();
-    
     // Clic sur la croix de la fenetre
     void closeEvent(QCloseEvent *event);
     void SendReceive(char* request, int socket, char* response, int responseSize);

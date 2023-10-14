@@ -341,7 +341,7 @@ void WindowClient::on_pushButtonLogin_clicked()
             dialogueMessage("Login", "Connexion établie");
 
             loginOK();
-            setPublicite("TROP CHAUD BEAUGOSSE");
+            setPublicite("Bonjour");
         }
         else
         {
@@ -410,15 +410,13 @@ void WindowClient::on_pushButtonPrecedent_clicked()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void WindowClient::on_pushButtonAcheter_clicked()
 {
-  char requete[100],reponse[100],reponseConnecte[100];
+  char requete[100], reponse[100], reponseConnecte[100];
   int qauntiteSelec = getQuantite();
 
-
-
-  sprintf(requete,"ACHAT#%d#%d",ArtcileCourant.id,qauntiteSelec);
+  sprintf(requete, "ACHAT#%d#%d", ArtcileCourant.id, qauntiteSelec);
 
   SendReceive(requete, sClientClient, reponse, sizeof(reponse));
-  
+
   char *ptr = strtok(reponse, "#");
   printf("ptr = %s\n", ptr);
 
@@ -428,22 +426,34 @@ void WindowClient::on_pushButtonAcheter_clicked()
     printf("ptr = %s\n", ptr);
     printf("SE = %s\n", reponseConnecte);
     if (strcmp(reponseConnecte, "0") == 0)
-    { 
-      dialogueMessage("Stock","Quantité trop elevée");
+    {
+      dialogueMessage("Stock", "Quantité trop élevée");
     }
     else
     {
       if (strcmp(reponseConnecte, "-1") == 0)
       {
-         dialogueMessage("Stock","Article non trouve");
+        dialogueMessage("Stock", "Article non trouvé");
       }
       else
       {
-        dialogueMessage("Achat", "effectueé");
+        int i = 0;
+        while(Caddie[i].id != 0 && i < 10) i++;
+
+        Caddie[i].id = ArtcileCourant.id;
+        strcpy(Caddie[i].intitule, ArtcileCourant.intitule);
+        Caddie[i].prix = ArtcileCourant.prix;
+        Caddie[i].stock = qauntiteSelec;
+        strcpy(Caddie[i].image, ArtcileCourant.image);
+        ajouteArticleTablePanier(Caddie[i].intitule, Caddie[i].prix, Caddie[i].stock);
+        dialogueMessage("Achat", "effectué");
+        nbArticles++; // Incrémente le nombre d'articles dans le caddi
       }
     }
   }
 }
+
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void WindowClient::on_pushButtonSupprimer_clicked() {
@@ -669,8 +679,16 @@ void WindowClient::getArticle(int id)
     ArtcileCourant.prix = prix;
     strcpy(ArtcileCourant.intitule, intitule);
     strcpy(ArtcileCourant.image, image);
+    int i = 0;
 
+    while(i<MAXCADDIE)
+    {
+      printf("CADIE =%d\n",Caddie[i].id);
+      i++;
+    }
   }
+
+
 }
 void WindowClient::SendReceive(char* request, int socket, char* response, int responseSize)
 {
