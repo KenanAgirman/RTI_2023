@@ -351,7 +351,7 @@ void SMOP_ACHAT(int id, MYSQL* connexion, char* rep, int quantite)
 					sprintf(rep, "ACHAT#-1");	    
 				}
 
-				sprintf(rep,"ACHAT#%s#%s#%s#%s", row[0], row[1],row[3], row[2]);
+				sprintf(rep,"ACHAT#%s#%s#%s#%s#%d", row[0], row[1],row[3], row[2],stockBD);
 
 		  	}
 		  }
@@ -372,7 +372,7 @@ void SMOP_CANCEL(int id,MYSQL* connexion,char* rep,int qauntite)
 
     char requete[200];
     MYSQL_RES* resultat;
-    MYSQL_ROW tuple;
+    MYSQL_ROW row;
 
 
     sprintf(requete, "SELECT * FROM articles WHERE id = %d;", id);
@@ -380,7 +380,7 @@ void SMOP_CANCEL(int id,MYSQL* connexion,char* rep,int qauntite)
     if (mysql_query(connexion, requete) != 0)
     {
         fprintf(stderr, "Erreur de mysql_query: %s\n", mysql_error(connexion));
-        sprintf(rep, "CANCEL#-1"); // Échec de la requête SQL
+        sprintf(rep, "CANCEL#-1");
         return;
     }
 
@@ -393,9 +393,9 @@ void SMOP_CANCEL(int id,MYSQL* connexion,char* rep,int qauntite)
         return;
     }
 
-    if ((tuple = mysql_fetch_row(resultat)) != NULL)
+    if ((row = mysql_fetch_row(resultat)) != NULL)
     {
-        int newStock = atoi(tuple[3]) + qauntite;
+        int newStock = atoi(row[3]) + qauntite;
 
         sprintf(requete, "UPDATE articles SET stock = %d WHERE id = %d;", newStock, id);
 
