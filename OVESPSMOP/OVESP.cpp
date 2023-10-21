@@ -111,37 +111,12 @@ bool SMOP(char *requete, char *reponse, int socket,MYSQL* connexion)
 		    }
 			if (strcmp(ptr, "CANCELALL") == 0)
 			{
-			    int idid, Quantite;
-			    char delim[100] = "";
-			    idid = atoi(strtok(NULL, "#"));
+                int articlenb,id;
+                articlenb = atoi(strtok(NULL,"#"));
+                id = atoi(strtok(NULL,"#"));
 
-			    if (idid > 0)
-			    {
-			        int i = 1;
 
-			        strcat(delim, strtok(NULL, "#"));
-
-			        while (i < idid)
-			        {
-			            strcat(delim, "#");
-			            char *token = strtok(NULL, "#");
-			            if (token)
-			            {
-			                strcat(delim, token);
-			                i++;
-			            }
-			            else
-			            {
-			                printf("Données manquantes dans la réponse.\n");
-			                break;
-			            }
-			        }
-
-			        printf("REQUETE IDI reponse %s/%d/%s\n", requete, idid, reponse);
-
-			        SMOP_Cancel_All(requete, idid, reponse, connexion);
-			    }
-			
+    	        printf("je suis icic =%d|%d/n",articlenb,id);
 			}
 	}
 
@@ -416,9 +391,32 @@ void SMOP_CANCEL(int id,MYSQL* connexion,char* rep,int qauntite)
 }
 void SMOP_Cancel_All(char *requete, int nbArti, char *rep, MYSQL *connexion)
 {
-	printf("Requête = %s/%s\n",requete,rep);
+  	printf("J'annule TOUT\n");
 
-	sprintf(rep, "CANCELALL#1");
+    // char requete[200];
+    MYSQL_RES* resultat;
+    MYSQL_ROW row;
+
+    // for (int i = 0; i < nbArticles; i++)
+    // {
+    //     int idArticle = ...; // Obtenez l'ID de l'article à partir du caddie local.
+    //     int quantite = ...;   // Obtenez la quantité de cet article.
+
+    //     sprintf(requete, "UPDATE articles SET stock = stock + %d WHERE id = %d;", quantite, idArticle);
+
+    //     if (mysql_query(connexion, requete) != 0)
+    //     {
+    //         fprintf(stderr, "Erreur de mysql_query: %s\n", mysql_error(connexion));
+    //         sprintf(rep, "CANCELALL#-1");
+    //         return;
+    //     }
+    // }
+
+    // Réinitialisez le caddie local (remplacez cela par votre logique pour réinitialiser le caddie).
+    // ...
+
+    sprintf(rep, "CANCELALL");
+
 }
 void SMOP_CONFIRM(char *requete,int nbArti, char* rep, MYSQL* connexion)
 {

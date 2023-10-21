@@ -396,6 +396,14 @@ void WindowClient::on_pushButtonAcheter_clicked()
     char requete[100], reponse[100], reponseConnecte[100];
     int qauntiteSelec = getQuantite();
 
+
+    if(qauntiteSelec==0)
+    {
+      dialogueMessage("ACHAT","Veuillez achetez un article");
+      return;
+    }
+
+    printf("QUANTITITI = %d\n",qauntiteSelec);
     sprintf(requete, "ACHAT#%d#%d", ArtcileCourant.id, qauntiteSelec);
 
     SendReceive(requete, sClientClient, reponse, sizeof(reponse));
@@ -536,27 +544,10 @@ void WindowClient::on_pushButtonViderPanier_clicked()
 
   for (int i = 0; i < 10 && Caddie[i].id != 0; i++)
   {
-      sprintf(requete + strlen(requete), "#%d&%d", Caddie[i].id, Caddie[i].stock);
+      sprintf(requete + strlen(requete), "#%d#%d", Caddie[i].id, Caddie[i].stock);
   }
 
-  if((nbEcrits = Send(sClientClient, requete, strlen(requete))) == -1)
-  {
-    perror("Erreur de Send");
-    exit(1);
-  }
-  
-  printf("NbEcrits = %d\n", nbEcrits);
-  printf("Ecrit = --%s--\n", requete);
-
-  if((nbLus = Receive(sClientClient, reponse)) < 0)
-  {
-    perror("Erreur de Receive");
-     exit(1);
-  }
-
-  printf("NbLus = %d\n", nbLus);
-  reponse[nbLus] = 0;
-  printf("Lu = --%s--\n", reponse);
+  SendReceive(requete, sClientClient, reponse, sizeof(reponse));
 
   char *ptr = strtok(reponse,"#");
 
@@ -564,7 +555,7 @@ void WindowClient::on_pushButtonViderPanier_clicked()
   if (strcmp(ptr,"CANCELALL") == 0)
   {
     printf("leilielallala\n");
-      videTablePanier();
+    videTablePanier();
 
       totalCaddie = 0.0;
       setTotal(-1.0);

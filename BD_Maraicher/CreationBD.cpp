@@ -69,7 +69,8 @@ int main(int argc,char *argv[])
   sprintf(requete, "insert into clients (login, password) values ('%s', '%s');", "bob", "bob");
   mysql_query(connexion, requete);
 
-
+  printf("Creation table factures...\n");
+  
   // Deconnection de la BD
   mysql_close(connexion);
   exit(0);
