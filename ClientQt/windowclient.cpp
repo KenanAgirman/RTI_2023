@@ -538,41 +538,21 @@ void WindowClient::on_pushButtonSupprimer_clicked()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void WindowClient::on_pushButtonViderPanier_clicked()
 {
-  char requete[200],reponse[100];
-  sprintf(requete,"CANCELALL#%d", nbArticles);
-  int nbEcrits,nbLus;
+  char requete[200], reponse[100];
+  
+  sprintf(requete, "CANCELALL#%d", nbArticles);
 
-  for (int i = 0; i < 10 && Caddie[i].id != 0; i++)
+  for (int i = 0; i < nbArticles; i++)
   {
-      sprintf(requete + strlen(requete), "#%d#%d", Caddie[i].id, Caddie[i].stock);
+    sprintf(requete + strlen(requete), "#%d#%d", Caddie[i].id,Caddie[i].stock);
   }
 
+  // Envoyez la requête au serveur
   SendReceive(requete, sClientClient, reponse, sizeof(reponse));
 
-  char *ptr = strtok(reponse,"#");
-
-
-  if (strcmp(ptr,"CANCELALL") == 0)
-  {
-    printf("leilielallala\n");
-    videTablePanier();
-
-      totalCaddie = 0.0;
-      setTotal(-1.0);
-      for(int i = 0; i<MAXCADDIE; i++)
-      {
-        printf("je suis passé icic;<;w;\n");
-          Caddie[i].id = 0;
-          Caddie[i].intitule[0] = '\0';
-          Caddie[i].prix = 0.0;
-          Caddie[i].stock = 0;
-          Caddie[i].image[0] = '\0';
-
-         setArticle(ArtcileCourant.intitule, ArtcileCourant.prix, ArtcileCourant.stock , ArtcileCourant.image);
-
-      }
-  }
+  // Traitez la réponse du serveur si nécessaire
 }
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void WindowClient::on_pushButtonPayer_clicked()

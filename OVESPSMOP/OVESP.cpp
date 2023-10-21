@@ -109,15 +109,28 @@ bool SMOP(char *requete, char *reponse, int socket,MYSQL* connexion)
 		        Quantite = atoi(strtok(NULL,"#"));
 		        SMOP_CANCEL(idid, connexion,reponse,Quantite);
 		    }
-			if (strcmp(ptr, "CANCELALL") == 0)
-			{
-                int articlenb,id;
-                articlenb = atoi(strtok(NULL,"#"));
-                id = atoi(strtok(NULL,"#"));
+                if (strcmp(ptr, "CANCELALL") == 0)
+                {
+                    char req[200];
+                    int totalArticles = atoi(strtok(NULL, "#"));
+                    printf("Total d'articles = %d\n", totalArticles);
 
+                    snprintf(req, sizeof(req), "CANCELALL#%d", totalArticles);
 
-    	        printf("je suis icic =%d|%d/n",articlenb,id);
-			}
+                    for (int i = 0; i < totalArticles; i++)
+                    {
+                        int id = atoi(strtok(NULL, "#"));
+                        int stock = atoi(strtok(NULL, "#"));
+
+                        snprintf(req + strlen(req), sizeof(req) - strlen(req), "#%d#%d", id, stock);
+
+                        printf("Article %d - ID: %d, Stock: %d\n", i + 1, id, stock);
+                    }
+
+                    printf("SERVERUCLIENT = %s\n", req);
+
+                    SMOP_Cancel_All(req, totalArticles, reponse, connexion);
+                }
 	}
 
     if (strcmp(ptr,"ACHAT") == 0)
@@ -341,14 +354,13 @@ void SMOP_ACHAT(int id, MYSQL* connexion, char* rep, int quantite)
 }
 
 
-void SMOP_CANCEL(int id,MYSQL* connexion,char* rep,int qauntite)
+void SMOP_CANCEL(int id, MYSQL *connexion, char *rep, int quantite)
 {
-  	printf("J'annule\n");
+    printf("J'annule\n");
 
     char requete[200];
-    MYSQL_RES* resultat;
+    MYSQL_RES *resultat;
     MYSQL_ROW row;
-
 
     sprintf(requete, "SELECT * FROM articles WHERE id = %d;", id);
 
@@ -364,60 +376,79 @@ void SMOP_CANCEL(int id,MYSQL* connexion,char* rep,int qauntite)
     if ((resultat = mysql_store_result(connexion)) == NULL)
     {
         fprintf(stderr, "Erreur de mysql_store_result: %s\n", mysql_error(connexion));
-        sprintf(rep, "CANCEL#-1"); 
+        sprintf(rep, "CANCEL#-1");
         return;
     }
 
     if ((row = mysql_fetch_row(resultat)) != NULL)
     {
-        int newStock = atoi(row[3]) + qauntite;
+        int newStock = atoi(row[3]) + quantite;
 
         sprintf(requete, "UPDATE articles SET stock = %d WHERE id = %d;", newStock, id);
 
-        if (mysql_query(connexion, requete) != 0) {
+        if (mysql_query(connexion, requete) != 0)
+        {
             fprintf(stderr, "Erreur de mysql_query: %s\n", mysql_error(connexion));
-            sprintf(rep, "CANCEL#-1"); 
-        } 
+            sprintf(rep, "CANCEL#-1");
+        }
         else
         {
             printf("Requête UPDATE réussie.\n");
-            sprintf(rep, "CANCEL#%d#%d", id, newStock); 
+            sprintf(rep, "CANCEL#%d#%d", id, newStock);
         }
-    } 
+    }
     else
     {
         sprintf(rep, "CANCEL#-1");
     }
 }
+
 void SMOP_Cancel_All(char *requete, int nbArti, char *rep, MYSQL *connexion)
 {
-  	printf("J'annule TOUT\n");
+    printf("J'annule TOUT\n");
+    printf("Requête CANCELALL = %s\n", requete);
 
-    // char requete[200];
-    MYSQL_RES* resultat;
-    MYSQL_ROW row;
+    // Utilisez strtok pour extraire les éléments de la chaîne
+    char *token = strtok(requete, "#");
+    
+    // Vérifiez le premier token (CANCELALL)
+    if (strcmp(token, "CANCELALL") != 0) {
+        printf("Requête non valide : %s\n", requete);
+        return;  // Quittez la fonction si la requête n'est pas valide
+    }
 
-    // for (int i = 0; i < nbArticles; i++)
-    // {
-    //     int idArticle = ...; // Obtenez l'ID de l'article à partir du caddie local.
-    //     int quantite = ...;   // Obtenez la quantité de cet article.
+    // Passez au prochain token pour obtenir le nombre total d'articles
+    token = strtok(NULL, "#");
+    int totalArticles = atoi(token);
+    printf("Total d'articles = %d\n", totalArticles);
 
-    //     sprintf(requete, "UPDATE articles SET stock = stock + %d WHERE id = %d;", quantite, idArticle);
+    // Boucle pour extraire chaque article
+    for (int i = 0; i < totalArticles; i++) {
+        // ID de l'article
+        token = strtok(NULL, "#");
+        int id = atoi(token);
 
-    //     if (mysql_query(connexion, requete) != 0)
-    //     {
-    //         fprintf(stderr, "Erreur de mysql_query: %s\n", mysql_error(connexion));
-    //         sprintf(rep, "CANCELALL#-1");
-    //         return;
-    //     }
-    // }
+        // Quantité de l'article
+        token = strtok(NULL, "#");
+        int quantite = atoi(token);
 
-    // Réinitialisez le caddie local (remplacez cela par votre logique pour réinitialiser le caddie).
-    // ...
+        printf("Article %d - ID: %d, Quantité: %d\n", i + 1, id, quantite);
 
-    sprintf(rep, "CANCELALL");
+        // Construisez la requête SQL pour mettre à jour le stock de l'article
+        char sqlQuery[200];
+        snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE articles SET stock = stock + %d WHERE id = %d", quantite, id);
 
+        // Exécutez la requête SQL
+        if (mysql_query(connexion, sqlQuery) != 0) {
+            fprintf(stderr, "Erreur de mysql_query: %s\n", mysql_error(connexion));
+            sprintf(rep, "CANCELALL#-1");
+            return;
+        }
+    }
 }
+
+
+
 void SMOP_CONFIRM(char *requete,int nbArti, char* rep, MYSQL* connexion)
 {
 	sprintf(rep, "CONFIRMER#1");

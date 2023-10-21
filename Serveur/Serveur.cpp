@@ -174,7 +174,7 @@ void TraitementConnexion(int sService)
 	    HandlerSIGINT(0);
 	 }
 
-	 printf("requete = %s\n",requete);
+	 printf("KENJEDSZI = %s\n",requete);
 
 	 printf("je suis ici pour le Receive\n");
 	 // ***** Fin de connexion ? *****************
