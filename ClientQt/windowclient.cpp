@@ -341,7 +341,11 @@ void WindowClient::on_pushButtonLogin_clicked()
             dialogueMessage("Login", "Connexion établie");
 
             loginOK();
-            setPublicite("Bonjour");
+
+            char publicite[200] = "Bonjour ";
+            strcat(publicite, nom);
+
+            setPublicite(publicite);
         }
         else
         {
@@ -538,7 +542,7 @@ void WindowClient::on_pushButtonSupprimer_clicked()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void WindowClient::on_pushButtonViderPanier_clicked()
 {
-  char requete[200], reponse[100];
+  char requete[200], reponse[100],reponseConnecte[100];;
   
   sprintf(requete, "CANCELALL#%d", nbArticles);
 
@@ -550,7 +554,29 @@ void WindowClient::on_pushButtonViderPanier_clicked()
   // Envoyez la requête au serveur
   SendReceive(requete, sClientClient, reponse, sizeof(reponse));
 
-  // Traitez la réponse du serveur si nécessaire
+   char *ptr = strtok(reponse, "#");
+
+   if (strcmp(ptr, "CANCELALL") == 0)
+   {
+     //  strcpy(reponse, strtok(NULL, "#"));
+
+     // if(strcmp(reponseConnecte, "no") == 0)
+     // {
+     //  dialogueMessage("Erreur","aucun artilces");
+     // }
+     // else
+     // {
+       int i = 0;
+       for(i = 0; i<nbArticles;i++)
+       {
+          Caddie[i].id = 0;
+          videTablePanier();
+
+          totalCaddie = 0.0;
+          setTotal(-1.0);
+       }
+     // }
+   }
 }
 
 

@@ -113,23 +113,31 @@ bool SMOP(char *requete, char *reponse, int socket,MYSQL* connexion)
                 {
                     char req[200];
                     int totalArticles = atoi(strtok(NULL, "#"));
-                    printf("Total d'articles = %d\n", totalArticles);
+                    printf("Total d'articles = %d\n", totalArticles);   
 
-                    snprintf(req, sizeof(req), "CANCELALL#%d", totalArticles);
 
-                    for (int i = 0; i < totalArticles; i++)
+                    if(totalArticles==0)
                     {
-                        int id = atoi(strtok(NULL, "#"));
-                        int stock = atoi(strtok(NULL, "#"));
-
-                        snprintf(req + strlen(req), sizeof(req) - strlen(req), "#%d#%d", id, stock);
-
-                        printf("Article %d - ID: %d, Stock: %d\n", i + 1, id, stock);
+                        sprintf(reponse,"CANCELALL#no");
                     }
+                    else
+                    {
+                        snprintf(req, sizeof(req), "CANCELALL#%d", totalArticles);
+                    
+                        for (int i = 0; i < totalArticles; i++)
+                        {
+                            int id = atoi(strtok(NULL, "#"));
+                            int stock = atoi(strtok(NULL, "#"));
 
-                    printf("SERVERUCLIENT = %s\n", req);
+                            snprintf(req + strlen(req), sizeof(req) - strlen(req), "#%d#%d", id, stock);
 
-                    SMOP_Cancel_All(req, totalArticles, reponse, connexion);
+                            printf("Article %d - ID: %d, Stock: %d\n", i + 1, id, stock);
+                        }
+
+                        printf("SERVERUCLIENT = %s\n", req);
+
+                        SMOP_Cancel_All(req, totalArticles, reponse, connexion);
+                    }
                 }
 	}
 
@@ -423,7 +431,8 @@ void SMOP_Cancel_All(char *requete, int nbArti, char *rep, MYSQL *connexion)
     printf("Total d'articles = %d\n", totalArticles);
 
     // Boucle pour extraire chaque article
-    for (int i = 0; i < totalArticles; i++) {
+    for (int i = 0; i < totalArticles; i++)
+    {
         // ID de l'article
         token = strtok(NULL, "#");
         int id = atoi(token);
@@ -445,6 +454,7 @@ void SMOP_Cancel_All(char *requete, int nbArti, char *rep, MYSQL *connexion)
             return;
         }
     }
+    sprintf(rep, "CANCELALL");
 }
 
 

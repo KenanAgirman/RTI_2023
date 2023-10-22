@@ -38,40 +38,46 @@ ARTICLE Elm[] =
   {-1,"tomates",5.49f,22,"tomates.jpg"}
 };
 
-int main(int argc,char *argv[])
-{
-  // Connection a MySql
-  printf("Connection a la BD...\n");
-  MYSQL* connexion = mysql_init(NULL);
-  mysql_real_connect(connexion,"localhost","Student","PassStudent1_","PourStudent",0,0,0);
+int main(int argc, char *argv[]) {
+    // Connexion à la base de données MySQL
+    printf("Connexion à la base de données...\n");
+    MYSQL *connexion = mysql_init(NULL);
+    if (mysql_real_connect(connexion, "localhost", "Student", "PassStudent1_", "PourStudent", 0, NULL, 0) == NULL) {
+        fprintf(stderr, "Échec de la connexion à la base de données : %s\n", mysql_error(connexion));
+        return 1;
+    }
 
-  // Creation d'une table UNIX_FINAL
-  printf("Creation de la table articles...\n");
-  mysql_query(connexion,"drop table articles;"); // au cas ou elle existerait deja
-  mysql_query(connexion,"create table articles (id INT(4) auto_increment primary key, intitule varchar(20),prix FLOAT(4),stock INT(4),image varchar(20));");
+    // Création de la table "articles"
+    printf("Création de la table articles...\n");
+    mysql_query(connexion, "DROP TABLE IF EXISTS articles;"); // Suppression de la table si elle existe
+    mysql_query(connexion, "CREATE TABLE articles (id INT(4) AUTO_INCREMENT PRIMARY KEY, intitule VARCHAR(20), prix FLOAT(4), stock INT(4), image VARCHAR(20));");
 
-  // Ajout de tuples dans la table UNIX_FINAL
-  printf("Ajout de 21 articles la table articles...\n");
-  char requete[256];
-  for (int i=0 ; i<21 ; i++)
-  {
-	  sprintf(requete,"insert into articles values (NULL,'%s',%f,%d,'%s');",Elm[i].intitule,Elm[i].prix,Elm[i].stock,Elm[i].image);
-	  mysql_query(connexion,requete);
-  }
+    // Ajout de tuples dans la table "articles"
+    printf("Ajout de 21 articles dans la table articles...\n");
+    char requete[256];
+    for (int i = 0; i < 21; i++) {
+        sprintf(requete, "INSERT INTO articles (intitule, prix, stock, image) VALUES ('%s', %f, %d, '%s');", Elm[i].intitule, Elm[i].prix, Elm[i].stock, Elm[i].image);
+        mysql_query(connexion, requete);
+    }
 
+    // Création de la table "clients"
+    printf("Création de la table clients...\n");
+    mysql_query(connexion, "DROP TABLE IF EXISTS clients;"); // Suppression de la table si elle existe
+    mysql_query(connexion, "CREATE TABLE clients (id INT(4) AUTO_INCREMENT PRIMARY KEY, login VARCHAR(30), password VARCHAR(30));");
 
-  mysql_query(connexion,requete);
-  
-  printf("Ajout de clients...\n");
-  //Creation d'une table clients clients Id, login, password
-  
-  mysql_query(connexion,"create table clients (id INT(4) auto_increment primary key, login varchar(30),password varchar(30));");
-  sprintf(requete, "insert into clients (login, password) values ('%s', '%s');", "bob", "bob");
-  mysql_query(connexion, requete);
+    // Ajout d'un client (par exemple, 'bob' avec le mot de passe 'bob')
+    printf("Ajout d'un client...\n");
+    // mysql_query(connexion, "INSERT INTO clients (login, password) VALUES ('bob', 'bob');");
 
-  printf("Creation table factures...\n");
-  
-  // Deconnection de la BD
-  mysql_close(connexion);
-  exit(0);
+    // Création de la table "factures"
+    printf("Creation de la table factures...\n");
+    mysql_query(connexion,"drop table factures;"); // au cas ou elle existerait deja
+    mysql_query(connexion, "CREATE TABLE factures (idFacture INT(4) AUTO_INCREMENT PRIMARY KEY, idClient INT(4), dateFacture DATE, montant FLOAT, paye INT);");
+
+    // Fermeture de la connexion à la base de données
+    mysql_close(connexion);
+
+    printf("Tables créées avec succès.\n");
+
+    return 0;
 }
