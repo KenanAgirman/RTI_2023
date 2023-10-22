@@ -23,6 +23,7 @@ ARTICLE ArtcileCourant;
 ARTICLE Caddie[MAXCADDIE];
 int nbArticles = 0;
 float totalCaddie = 0.0;
+int numFacture = 0;
 #define REPERTOIRE_IMAGES "ClientQt/images/"
 
 WindowClient::WindowClient(int sClient,QWidget *parent) : QMainWindow(parent), ui(new Ui::WindowClient)
@@ -341,7 +342,7 @@ void WindowClient::on_pushButtonLogin_clicked()
             dialogueMessage("Login", "Connexion établie");
 
             loginOK();
-
+            ajoutCaddie();
             char publicite[200] = "Bonjour ";
             strcat(publicite, nom);
 
@@ -371,12 +372,10 @@ void WindowClient::on_pushButtonLogout_clicked()
   
   if (strcmp(ptr,"LOGOUT") == 0) 
   {
-    strcpy(reponseConnecte,strtok(NULL,"#"));
-    printf("ptr = %s\n",ptr);
-    printf("SE = %s\n",reponseConnecte);
 
     logoutOK();
     setPublicite("AU REVOIR");
+    logged = false;
     
   }
          
@@ -445,7 +444,7 @@ void WindowClient::on_pushButtonAcheter_clicked()
                         Caddie[i].stock += qauntiteSelec;
                         articleTrouve = true;
                         totalCaddie = totalCaddie + (qauntiteSelec * Caddie[i].prix);
-                        ajoutCaddie();
+                        ajoutCaddie();                    
                         nbArticles++;
                     }
                     else if (Caddie[i].id == 0)
@@ -584,44 +583,29 @@ void WindowClient::on_pushButtonViderPanier_clicked()
 void WindowClient::on_pushButtonPayer_clicked()
 {
     char requete[200],reponse[200];
-    int nbEcrits,nbLus;
+    const char* name = getNom();
+    int nbEcrits,nbLus,i = 0;
 
-    sprintf(requete,"CONFIRMER#%d", nbArticles);
+    numFacture++;
+    sprintf(requete, "CONFIRMER#%s#%d#%f#",name,numFacture,totalCaddie);
+    SendReceive(requete, sClientClient, reponse, sizeof(reponse));
 
+   char *ptr = strtok(reponse, "#");
 
-    if((nbEcrits = Send(sClientClient,requete,strlen(requete))) == -1)
-    {
-      perror("Erreur de Send");
-      exit(1);
-    }
+   if (strcmp(ptr, "CONFIRMER") == 0)
+   {
+       for(i = 0; i<nbArticles;i++)
+       {
+          Caddie[i].id = 0;
+          videTablePanier();
 
- 
-    printf("NbEcrits = %d\n",nbEcrits);
-    printf("Ecrit = --%s--\n",requete);
+          totalCaddie = 0.0;
+          setTotal(-1.0);
+       }
 
-
-    if((nbLus = Receive(sClientClient,reponse)) < 0)
-    {
-      perror("Erreur de Receive");
-      exit(1);
-    }
-  
-    printf("NbLus = %d\n",nbLus);
-    reponse[nbLus] = 0;
-    printf("Lu = --%s--\n",reponse);
-
-    char *ptr = strtok(reponse,"#");
-
-    if (strcmp(ptr,"CONFIRMER") == 0) 
-    {
-        videTablePanier();
-
-        totalCaddie = 0.0;
-        setTotal(-1.0);
-
-
-        dialogueMessage("facture","payer");
-    }
+       dialogueMessage("QUITTER ","Merci");
+       exit(1);
+   }
 }
 void WindowClient::getArticle(int id)
 {
@@ -671,8 +655,6 @@ void WindowClient::getArticle(int id)
       i++;
     }
   }
-
-
 }
 void WindowClient::SendReceive(char* request, int socket, char* response, int responseSize)
 {

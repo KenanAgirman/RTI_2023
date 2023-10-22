@@ -5,7 +5,7 @@
 #include <pthread.h>
 #include <signal.h>
 #include <mysql.h>
-
+#include <time.h>
 
 #include "OVESP.h"
 
@@ -26,14 +26,13 @@ bool SMOP(char *requete, char *reponse, int socket,MYSQL* connexion)
 {
 	printf("REQUETE =%s/%s/%d\n",requete,reponse,socket);
 	// ***** Récupération nom de la requete *****************
-
 	char *ptr = strtok(requete,"#");
 
 	// ***** Récupération nom de la requete *****************
 
 	if(strcmp(ptr,"LOGIN") == 0) 
 	{
-	 char user[50], password[50];
+	 char user[50],password[50];
 	 int nouveauClient;
 	 bool check,check2;
 
@@ -95,10 +94,10 @@ bool SMOP(char *requete, char *reponse, int socket,MYSQL* connexion)
 	{
 		if (strcmp(ptr,"CONSULT") == 0)
 		 {
-		        int idid;
-		        idid = atoi(strtok(NULL,"#"));
+		    int idid;
+		    idid = atoi(strtok(NULL,"#"));
 
-		        SMOP_Consult(idid, connexion,reponse);
+		    SMOP_Consult(idid, connexion,reponse);
 		   }
 
 		    if (strcmp(ptr,"CANCEL") == 0)
@@ -154,23 +153,29 @@ bool SMOP(char *requete, char *reponse, int socket,MYSQL* connexion)
     {
     	if(strcmp(ptr,"CONFIRMER")==0)
 	    {
-	    	int idid, Quantite;
-			char delim[100] = "";
-			idid = atoi(strtok(NULL, "#"));
+	    	int numf;
+            float prix;
+            char name[50];
 
-			SMOP_CONFIRM(requete, idid, reponse, connexion);
+            strcpy(name,strtok(NULL,"#"));
+            numf = atoi(strtok(NULL,"#"));
+            prix = atof(strtok(NULL,"#"));
+            
+            printf("name - %s numf %d  - Stock: %f\n",name, numf, prix);
+
+            SMOP_Facture(name, numf, prix, reponse,connexion);
+
 		}
 	    
     }
 
+
 	// ***** LOGOUT *****************************************
-	if(strcmp(ptr,"LOGOUT") == 0)
-	{
-	  printf("\t[THREAD %p] LOGOUT\n",pthread_self());
-	  retire(socket);
-	  sprintf(reponse,"LOGOUT#ok");
-	  return false;
-	}
+    if (strcmp(ptr,"LOGOUT") == 0)
+    {
+        SMOP_Logout(socket);
+        sprintf(reponse,"LOGOUT");
+    }
 	return true;
 }
 
@@ -361,7 +366,10 @@ void SMOP_ACHAT(int id, MYSQL* connexion, char* rep, int quantite)
     }
 }
 
-
+void SMOP_Logout(int sock)
+{
+    retire(sock);
+}
 void SMOP_CANCEL(int id, MYSQL *connexion, char *rep, int quantite)
 {
     printf("J'annule\n");
@@ -457,11 +465,54 @@ void SMOP_Cancel_All(char *requete, int nbArti, char *rep, MYSQL *connexion)
     sprintf(rep, "CANCELALL");
 }
 
-
-
-void SMOP_CONFIRM(char *requete,int nbArti, char* rep, MYSQL* connexion)
+void SMOP_Facture(const char* user, int numFacture, float total, char* rep,MYSQL* connexion)
 {
-	sprintf(rep, "CONFIRMER#1");
+    char requete[200];
+    MYSQL_RES* resultat;
+    MYSQL_ROW row;
+    int idClient;
+    time_t maintenant;
+    struct tm *tm_info;
+    char dateFacture[20];
+
+
+    printf("LOGIN =%s\n",user);
+
+    // Récupérer l'ID du client
+    sprintf(requete, "SELECT id FROM clients WHERE login = '%s';", user);
+
+    if (mysql_query(connexion, requete) != 0) {
+        fprintf(stderr, "Erreur de mysql_query: %s\n", mysql_error(connexion));
+        return;
+    }
+
+    resultat = mysql_store_result(connexion);
+
+    if (resultat) {
+        if ((row = mysql_fetch_row(resultat))) {
+            idClient = atoi(row[0]);
+        } else {
+            return;
+        }
+
+        mysql_free_result(resultat);
+    } else {
+        sprintf(rep, "CONFIRMER-1");
+    }
+
+    time(&maintenant);
+    tm_info = localtime(&maintenant);
+
+    strftime(dateFacture, 20, "%Y-%m-%d", tm_info);
+
+    sprintf(requete, "INSERT INTO factures (idClient, dateFacture, montant, paye) VALUES (%d, '%s', %f, 0);", idClient, dateFacture, total);
+
+    if (mysql_query(connexion, requete) != 0) {
+        fprintf(stderr, "Erreur de mysql_query: %s\n", mysql_error(connexion));
+        return;
+    }
+    sprintf(rep, "CONFIRMER");
+
 }
 
 

@@ -67,13 +67,16 @@ int main(int argc, char *argv[]) {
 
     // Ajout d'un client (par exemple, 'bob' avec le mot de passe 'bob')
     printf("Ajout d'un client...\n");
-    // mysql_query(connexion, "INSERT INTO clients (login, password) VALUES ('bob', 'bob');");
+    mysql_query(connexion, "INSERT INTO clients (login, password) VALUES ('bob', 'bob');");
 
-    // Création de la table "factures"
     printf("Creation de la table factures...\n");
     mysql_query(connexion,"drop table factures;"); // au cas ou elle existerait deja
     mysql_query(connexion, "CREATE TABLE factures (idFacture INT(4) AUTO_INCREMENT PRIMARY KEY, idClient INT(4), dateFacture DATE, montant FLOAT, paye INT);");
 
+
+    printf("Creation de la table ventes...\n");
+    mysql_query(connexion,"drop table ventes;");
+    mysql_query(connexion,"create table ventes (idFacture INT(4), idArticle INT(4), quantite INT);");
     // Fermeture de la connexion à la base de données
     mysql_close(connexion);
 

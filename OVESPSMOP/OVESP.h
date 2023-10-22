@@ -20,4 +20,8 @@ void SMOP_CONFIRM(char *requete,int nbArti, char* rep, MYSQL* connexion);
 
 void SMOP_Close();
 
+void SMOP_Facture(const char* user,int numFacture,float total,char* rep,MYSQL* connexion);
+
+void SMOP_Logout(int socket);
+
 #endif
