@@ -3,15 +3,21 @@ package Controleur;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
+import java.net.Socket;
 
 import GUI.App;
+import Model.model;
 
 import javax.swing.*;
+
+import static Model.model.Send;
+import static Model.model.csocket;
 
 public class Controleur extends WindowAdapter implements ActionListener {
     private App app;
     private String nom;
     private String mdp;
+    private model m1;
 
     public String getNom() {
         return nom;
@@ -54,6 +60,13 @@ public class Controleur extends WindowAdapter implements ActionListener {
 
             JOptionPane.showMessageDialog(app, nom, "Informations de Connexion", JOptionPane.INFORMATION_MESSAGE);
             JOptionPane.showMessageDialog(app, mdp, "Informations de Connexion", JOptionPane.INFORMATION_MESSAGE);
+            String message = "LOGIN#" +nom +"#" + mdp +"#" +0;
+
+            System.out.println(message);
+
+            byte[] messageBytes = message.getBytes("UTF-8");
+            int nbEcrits = Send(csocket, messageBytes,messageBytes.length);
+
         }catch (Exception exception)
         {
             JOptionPane.showMessageDialog(null, exception.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
