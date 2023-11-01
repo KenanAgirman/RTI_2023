@@ -424,39 +424,32 @@ void SMOP_Cancel_All(char *requete, int nbArti, char *rep, MYSQL *connexion)
     printf("J'annule TOUT\n");
     printf("Requête CANCELALL = %s\n", requete);
 
-    // Utilisez strtok pour extraire les éléments de la chaîne
     char *token = strtok(requete, "#");
     
-    // Vérifiez le premier token (CANCELALL)
     if (strcmp(token, "CANCELALL") != 0) {
         printf("Requête non valide : %s\n", requete);
-        return;  // Quittez la fonction si la requête n'est pas valide
+        return;
     }
 
-    // Passez au prochain token pour obtenir le nombre total d'articles
     token = strtok(NULL, "#");
     int totalArticles = atoi(token);
     printf("Total d'articles = %d\n", totalArticles);
 
-    // Boucle pour extraire chaque article
     for (int i = 0; i < totalArticles; i++)
     {
-        // ID de l'article
         token = strtok(NULL, "#");
         int id = atoi(token);
 
-        // Quantité de l'article
         token = strtok(NULL, "#");
         int quantite = atoi(token);
 
         printf("Article %d - ID: %d, Quantité: %d\n", i + 1, id, quantite);
 
-        // Construisez la requête SQL pour mettre à jour le stock de l'article
         char sqlQuery[200];
         snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE articles SET stock = stock + %d WHERE id = %d", quantite, id);
 
-        // Exécutez la requête SQL
-        if (mysql_query(connexion, sqlQuery) != 0) {
+        if (mysql_query(connexion, sqlQuery) != 0)
+        {
             fprintf(stderr, "Erreur de mysql_query: %s\n", mysql_error(connexion));
             sprintf(rep, "CANCELALL#-1");
             return;
@@ -478,7 +471,6 @@ void SMOP_Facture(const char* user, int numFacture, float total, char* rep,MYSQL
 
     printf("LOGIN =%s\n",user);
 
-    // Récupérer l'ID du client
     sprintf(requete, "SELECT id FROM clients WHERE login = '%s';", user);
 
     if (mysql_query(connexion, requete) != 0) {
