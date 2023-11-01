@@ -11,3 +11,4 @@ mysql> show tables;
 mysql> describe articles;
 
 mysql> select * from articles;
+sudo systemctl stop firewalld
