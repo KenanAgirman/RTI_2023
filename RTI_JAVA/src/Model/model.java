@@ -8,7 +8,6 @@ public class model  {
     public static Socket csocket;
     private static model INSTANCE;
 
-    // Ajoutez un constructeur privé pour empêcher l'instanciation directe
     private model() {
     }
 
@@ -44,7 +43,6 @@ public class model  {
             trame[taille] = '%';
             trame[taille + 1] = ')';
 
-            // Obtenir le flux de sortie de la socket
             OutputStream outputStream = socket.getOutputStream();
             DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
 
@@ -70,7 +68,7 @@ public class model  {
             }
 
             if (nbLus == 0) {
-                return i; // connexion fermée par le client
+                return i;
             }
 
             lu1 = (byte) nbLus;
@@ -81,7 +79,7 @@ public class model  {
                 }
 
                 if (nbLus == 0) {
-                    return i; // connexion fermée par le client
+                    return i;
                 }
 
                 lu2 = (byte) nbLus;
@@ -108,14 +106,13 @@ public class model  {
 
         if (nbEcrits > 0) {
             try {
-                byte[] responseBuffer = new byte[1024]; // Ajustez la taille du tampon en conséquence
+                byte[] responseBuffer = new byte[TAILLE_MAX_DATA];
                 int nbLus = Receive(model.csocket.getInputStream(), responseBuffer);
 
                 if (nbLus > 0) {
-                    // Traitement de la réponse du serveur
+
                     String response = new String(responseBuffer, 0, nbLus, "UTF-8");
                     System.out.println("Réponse du serveur : " + response);
-                    // Vous pouvez faire plus de traitement ici selon la réponse du serveur
                 } else {
                     System.out.println("Aucune réponse du serveur.");
                 }

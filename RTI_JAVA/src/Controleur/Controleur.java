@@ -21,7 +21,7 @@ public class Controleur extends WindowAdapter implements ActionListener {
     model modele = model.getInstance();
 
     public Controleur() throws IOException {
-        modele.Connect();
+        //modele.Connect();
     }
 
     public String getNom() {

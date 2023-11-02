@@ -3,15 +3,12 @@ package GUI;
 import Controleur.Controleur;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class App extends JFrame{
     private JPanel panel1;
     private JTextField SetLogin;
     private JTextField SetPassword;
     private JCheckBox isNouveauCheckBox;
-    private JTextField SetPublicite;
     private JButton supprimerButton;
     private JButton viderPanierButton;
     private JButton confirmerButton;
@@ -20,6 +17,22 @@ public class App extends JFrame{
     private JButton loginButton;
     private JButton logoutButton;
     private JTable table1;
+    private JLabel SetMotdepasse;
+    private JLabel SetLogine;
+    private JLabel Nouveau;
+    private JScrollPane Article;
+    private JLabel Total;
+    private JButton button1Gauche;
+    private JButton button2Droite;
+    private JLabel Label;
+    private JSpinner spinner1;
+    private JLabel NomMaraiche;
+    private JLabel Prix;
+    private JLabel Stock;
+    private JTextField BIENVENUMARAICHERENLIGNETextField;
+    private JTextField textField2;
+    private JTextField textField3;
+    private JTextField textField4;
     private String nom;
     private String mdp;
 
