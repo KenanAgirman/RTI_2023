@@ -3,6 +3,7 @@ package Controleur;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
+import java.io.IOException;
 import java.net.Socket;
 
 import GUI.App;
@@ -17,7 +18,11 @@ public class Controleur extends WindowAdapter implements ActionListener {
     private App app;
     private String nom;
     private String mdp;
-    private model m1;
+    model modele = model.getInstance();
+
+    public Controleur() throws IOException {
+        modele.Connect();
+    }
 
     public String getNom() {
         return nom;
@@ -64,8 +69,7 @@ public class Controleur extends WindowAdapter implements ActionListener {
 
             System.out.println(message);
 
-            byte[] messageBytes = message.getBytes("UTF-8");
-            int nbEcrits = Send(csocket, messageBytes,messageBytes.length);
+            modele.Login(nom, mdp);
 
         }catch (Exception exception)
         {

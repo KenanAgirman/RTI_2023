@@ -6,7 +6,19 @@ public class model  {
     public static int TAILLE_MAX_DATA = 1000;
 
     public static Socket csocket;
+    private static model INSTANCE;
 
+    // Ajoutez un constructeur privé pour empêcher l'instanciation directe
+    private model() {
+    }
+
+    public static model getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new model();
+        }
+
+        return INSTANCE;
+    }
     public void Connect() throws IOException {
         csocket = new Socket("192.168.146.128", 50000);
         System.out.println("Connexion établie.");
@@ -47,7 +59,72 @@ public class model  {
         }
     }
 
-    public model() {
+    public int Receive(InputStream inputStream, byte[] data) throws IOException {
+        boolean fini = false;
+        int nbLus, i = 0;
+        byte lu1, lu2;
+
+        while (!fini) {
+            if ((nbLus = inputStream.read()) == -1) {
+                return -1;
+            }
+
+            if (nbLus == 0) {
+                return i; // connexion fermée par le client
+            }
+
+            lu1 = (byte) nbLus;
+
+            if (lu1 == '%') {
+                if ((nbLus = inputStream.read()) == -1) {
+                    return -1;
+                }
+
+                if (nbLus == 0) {
+                    return i; // connexion fermée par le client
+                }
+
+                lu2 = (byte) nbLus;
+
+                if (lu2 == ')') {
+                    fini = true;
+                } else {
+                    data[i] = lu1;
+                    data[i + 1] = lu2;
+                    i += 2;
+                }
+            } else {
+                data[i] = lu1;
+                i++;
+            }
+        }
+
+        return i;
+    }
+    public boolean Login(String name, String password) throws UnsupportedEncodingException {
+        String message = "LOGIN#" + name + "#" + password + "#" + 0;
+        byte[] messageBytes = message.getBytes("UTF-8");
+        int nbEcrits = model.getInstance().Send(model.csocket, messageBytes, messageBytes.length);
+
+        if (nbEcrits > 0) {
+            try {
+                byte[] responseBuffer = new byte[1024]; // Ajustez la taille du tampon en conséquence
+                int nbLus = Receive(model.csocket.getInputStream(), responseBuffer);
+
+                if (nbLus > 0) {
+                    // Traitement de la réponse du serveur
+                    String response = new String(responseBuffer, 0, nbLus, "UTF-8");
+                    System.out.println("Réponse du serveur : " + response);
+                    // Vous pouvez faire plus de traitement ici selon la réponse du serveur
+                } else {
+                    System.out.println("Aucune réponse du serveur.");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return true;
     }
 
     public void disconnect() {
