@@ -12,7 +12,7 @@ public class App extends JFrame{
     private JButton supprimerButton;
     private JButton viderPanierButton;
     private JButton confirmerButton;
-    private JTextField textField1;
+    private JTextField TotalArticle;
     private JButton payerButton;
     private JButton loginButton;
     private JButton logoutButton;
@@ -24,17 +24,16 @@ public class App extends JFrame{
     private JLabel Total;
     private JButton button1Gauche;
     private JButton button2Droite;
-    private JLabel Label;
+    private JLabel LabelImage;
     private JSpinner spinner1;
     private JLabel NomMaraiche;
     private JLabel Prix;
     private JLabel Stock;
     private JTextField BIENVENUMARAICHERENLIGNETextField;
-    private JTextField textField2;
-    private JTextField textField3;
-    private JTextField textField4;
-    private String nom;
-    private String mdp;
+    private JTextField NomArticleDB;
+    private JTextField PrixArticleDB;
+    private JTextField ArticleStock;
+
 
     public App(){
     setContentPane(panel1);
@@ -48,13 +47,6 @@ public class App extends JFrame{
         this.addWindowListener(c);
     }
 
-    public String getNom() {
-        return nom;
-    }
-
-    public String getMdp() {
-        return mdp;
-    }
 
     public JButton getLoginButton() {
         return loginButton;
@@ -66,5 +58,26 @@ public class App extends JFrame{
 
     public JTextField getSetPassword() {
         return SetPassword;
+    }
+
+
+    public JTextField getNomArticleDB() {
+        return NomArticleDB;
+    }
+
+    public JTextField getPrixArticleDB() {
+        return PrixArticleDB;
+    }
+
+    public JTextField getArticleStock() {
+        return ArticleStock;
+    }
+
+    public void setLabelImage(JLabel labelImage) {
+        LabelImage = labelImage;
+    }
+
+    public JLabel getLabelImage() {
+        return LabelImage;
     }
 }

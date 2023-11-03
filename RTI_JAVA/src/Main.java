@@ -1,5 +1,4 @@
 import GUI.App;
-import Model.model;
 import com.formdev.flatlaf.FlatDarculaLaf;
 import Controleur.*;
 import java.io.IOException;

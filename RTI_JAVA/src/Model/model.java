@@ -4,6 +4,7 @@ import java.net.Socket;
 
 public class model  {
     public static int TAILLE_MAX_DATA = 1000;
+    private article articleCourant;
 
     public static Socket csocket;
     private static model INSTANCE;
@@ -99,29 +100,87 @@ public class model  {
 
         return i;
     }
-    public boolean Login(String name, String password) throws UnsupportedEncodingException {
-        String message = "LOGIN#" + name + "#" + password + "#" + 0;
-        byte[] messageBytes = message.getBytes("UTF-8");
-        int nbEcrits = model.getInstance().Send(model.csocket, messageBytes, messageBytes.length);
+    public String echange(String requete) {
+        try {
+            byte[] requeteBytes = requete.getBytes("UTF-8");
 
-        if (nbEcrits > 0) {
-            try {
-                byte[] responseBuffer = new byte[TAILLE_MAX_DATA];
-                int nbLus = Receive(model.csocket.getInputStream(), responseBuffer);
+            int nbEcrits = model.getInstance().Send(model.csocket, requeteBytes, requeteBytes.length);
+
+            if (nbEcrits > 0) {
+                byte[] reponseBuffer = new byte[model.TAILLE_MAX_DATA];
+                int nbLus = model.getInstance().Receive(model.csocket.getInputStream(), reponseBuffer);
 
                 if (nbLus > 0) {
-
-                    String response = new String(responseBuffer, 0, nbLus, "UTF-8");
-                    System.out.println("Réponse du serveur : " + response);
+                    String reponse = new String(reponseBuffer, 0, nbLus, "UTF-8");
+                    return reponse;
                 } else {
-                    System.out.println("Aucune réponse du serveur.");
+                    return "Aucune réponse du serveur.";
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
+            } else {
+                return "Échec de l'envoi de la requête au serveur.";
             }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "Erreur lors de la communication avec le serveur.";
+        }
+    }
+
+    public boolean Login(String name, String password) {
+        String message = "LOGIN#" + name + "#" + password + "#" + 0;
+        String response = echange(message);
+
+        if (response != null) {
+            System.out.println("Réponse du serveur : " + response);
+        } else {
+            System.out.println("Aucune réponse du serveur.");
         }
 
         return true;
+    }
+
+
+    public void getArticle(int id) throws UnsupportedEncodingException {
+
+        article article;
+
+        String message = "CONSULT#" + id;
+        System.out.println("CONSULT " + message);
+        String reponse = echange(message);
+
+        if (reponse != null) {
+            System.out.println("Réponse du serveur : " + reponse);
+        } else {
+            System.out.println("Aucune réponse du serveur.");
+        }
+        System.out.println("REPONSE " + reponse);
+
+        String [] token;
+
+        token = reponse.split("#");
+
+
+        if(token[0].equals("CONSULT"))
+        {
+            if(!token[1].equals("-1"))
+            {
+               String intitule = token[2];
+               float prix = Float.parseFloat(token[3]);
+               int stock = Integer.parseInt(token[4]);
+               String image  = token[5];
+
+               System.out.println(image);
+                article = new article(intitule,prix,stock,image);
+                articleCourant = article;
+            }
+        }
+    }
+
+    public void setArticleCourant(article articleCourant) {
+        this.articleCourant = articleCourant;
+    }
+
+    public article getArticleCourant() {
+        return articleCourant;
     }
 
     public void disconnect() {
