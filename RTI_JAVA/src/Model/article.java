@@ -2,7 +2,7 @@ package Model;
 
 public class article {
     private model model;
-
+    private int id;
     private String intitule;
     private float prix;
     private String image;
@@ -12,7 +12,16 @@ public class article {
     public article() {
     }
 
-    public article(String intitule, float prix, int stock, String image) {
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public article(int id, String intitule, float prix, int stock, String image) {
+        this.id = id;
         this.intitule = intitule;
         this.prix = prix;
         this.stock = stock;

@@ -3,6 +3,7 @@ package GUI;
 import Controleur.Controleur;
 
 import javax.swing.*;
+import java.awt.event.ActionListener;
 
 public class App extends JFrame{
     private JPanel panel1;
@@ -40,10 +41,11 @@ public class App extends JFrame{
     setSize(900,600);
     setTitle("Maraicher");
     pack();
-
     }
     public void setControleur(Controleur c){
         loginButton.addActionListener(c);
+        button2Droite.addActionListener(c);
+        button1Gauche.addActionListener(c);
         this.addWindowListener(c);
     }
 
@@ -75,6 +77,14 @@ public class App extends JFrame{
 
     public void setLabelImage(JLabel labelImage) {
         LabelImage = labelImage;
+    }
+
+    public JButton getButton1Gauche() {
+        return button1Gauche;
+    }
+
+    public JButton getButton2Droite() {
+        return button2Droite;
     }
 
     public JLabel getLabelImage() {

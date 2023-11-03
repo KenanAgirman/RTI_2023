@@ -4,7 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.io.IOException;
-import java.util.List;
+import java.io.UnsupportedEncodingException;
 
 import GUI.App;
 import Model.*;
@@ -16,20 +16,13 @@ public class Controleur extends WindowAdapter implements ActionListener {
     private App app;
     private String nom;
     private String mdp;
-    private List<article> articlesCourant;
     model modele = model.getInstance();
 
     public Controleur() throws IOException {
-        modele.Connect();
+        //modele.Connect();
     }
 
-    public String getNom() {
-        return nom;
-    }
 
-    public String getMdp() {
-        return mdp;
-    }
 
     public void setApp(App app) {
         this.app = app;
@@ -48,6 +41,22 @@ public class Controleur extends WindowAdapter implements ActionListener {
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }
+        }
+        if(e.getSource()==app.getButton2Droite()){
+            try {
+                BoutonSuivantDroite();
+            } catch (UnsupportedEncodingException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+
+        if(e.getSource()==app.getButton1Gauche()){
+            try {
+                BoutonSuivantGauche();
+            } catch (UnsupportedEncodingException ex) {
+                throw new RuntimeException(ex);
+            }
+
         }
     }
 
@@ -69,8 +78,8 @@ public class Controleur extends WindowAdapter implements ActionListener {
             modele.Login(nom, mdp);
 
 
-            modele.getArticle(21);
-            Article();
+            modele.getArticle(1);
+            SetArticle();
 
         }catch (Exception exception)
         {
@@ -79,12 +88,10 @@ public class Controleur extends WindowAdapter implements ActionListener {
         }
     }
 
-    public void Article(){
+    public void SetArticle(){
         article arti;
 
         arti = modele.getArticleCourant();
-        String cheminImage = arti.getImage();
-        String path;
 
         String filepath = "src/images/" + arti.getImage();
         ImageIcon imageIcon = new ImageIcon(filepath);
@@ -93,6 +100,25 @@ public class Controleur extends WindowAdapter implements ActionListener {
         app.getPrixArticleDB().setText(Float.toString(arti.getPrix()));
         app.getArticleStock().setText(Float.toString(arti.getStock()));
         app.getLabelImage().setIcon(imageIcon);
+    }
 
+    public void BoutonSuivantDroite() throws UnsupportedEncodingException {
+        int idArticleSuivant = modele.getArticleCourant().getId() + 1;
+
+        if(idArticleSuivant<=22)
+        {
+            modele.getArticle(idArticleSuivant);
+            SetArticle();
+        } else JOptionPane.showMessageDialog(app,"Vous avez atteint tous les elements du maraicher","Information",JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    public void BoutonSuivantGauche() throws UnsupportedEncodingException {
+        int idArticleSuivant = modele.getArticleCourant().getId() -1;
+
+        if(idArticleSuivant>=1)
+        {
+            modele.getArticle(idArticleSuivant);
+            SetArticle();
+        } else JOptionPane.showMessageDialog(app,"Vous ne pouvez pas aller plus bas !!","Information",JOptionPane.INFORMATION_MESSAGE);
     }
 }

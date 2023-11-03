@@ -163,14 +163,15 @@ public class model  {
         {
             if(!token[1].equals("-1"))
             {
+               int idd  = id;
                String intitule = token[2];
                float prix = Float.parseFloat(token[3]);
                int stock = Integer.parseInt(token[4]);
                String image  = token[5];
 
                System.out.println(image);
-                article = new article(intitule,prix,stock,image);
-                articleCourant = article;
+               article = new article(idd,intitule,prix,stock,image);
+               articleCourant = article;
             }
         }
     }
