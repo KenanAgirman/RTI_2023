@@ -56,6 +56,7 @@ public class App extends JFrame{
         button2Droite.addActionListener(c);
         button1Gauche.addActionListener(c);
         getPayerButton().addActionListener(c);
+        getLogoutButton().addActionListener(c);
         this.addWindowListener(c);
     }
 
@@ -107,6 +108,10 @@ public class App extends JFrame{
 
     public JLabel getLabelImage() {
         return LabelImage;
+    }
+
+    public JButton getLogoutButton() {
+        return logoutButton;
     }
 
     public JSpinner getSpinner1() {

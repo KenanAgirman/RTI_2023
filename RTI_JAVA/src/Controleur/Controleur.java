@@ -19,13 +19,13 @@ public class Controleur extends WindowAdapter implements ActionListener {
     model modele = model.getInstance();
 
     public Controleur() throws IOException {
-        //modele.Connect();
+        modele.Connect();
     }
-
-
 
     public void setApp(App app) {
         this.app = app;
+        LOGOUT();
+
     }
 
     public App getApp() {
@@ -62,12 +62,14 @@ public class Controleur extends WindowAdapter implements ActionListener {
         if(e.getSource()==app.getPayerButton()){
             Payez();
         }
+        if(e.getSource()==app.getLogoutButton()){
+            LOGOUT();
+        }
     }
 
     public void LoginServeur() throws Exception {
         try {
             int check;
-            String reponse;
             if(app.getIsNouveauCheckBox().isSelected())
             {
                 check = 1;
@@ -90,6 +92,7 @@ public class Controleur extends WindowAdapter implements ActionListener {
 
 
             modele.getArticle(1);
+            LOGIN();
             SetArticle();
 
         }catch (Exception exception)
@@ -101,9 +104,16 @@ public class Controleur extends WindowAdapter implements ActionListener {
     public void Payez() {
         try {
             int quant = (int) app.getSpinner1().getValue();
+            String reponse;
+            article arti = modele.getArticleCourant();
             System.out.println("QUANT " + quant);
-
+            int artC =  arti.getId();
             if(quant==0) throw new Exception("Veuillez avoir au moins 1 quantité");
+
+            reponse = modele.Achat(artC,quant);
+
+            System.out.println("REPONSE " + reponse);
+
         } catch (Exception exception) {
             JOptionPane.showMessageDialog(null, exception.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
         }
@@ -141,4 +151,19 @@ public class Controleur extends WindowAdapter implements ActionListener {
             SetArticle();
         } else JOptionPane.showMessageDialog(app,"Vous ne pouvez pas aller plus bas !!","Information",JOptionPane.INFORMATION_MESSAGE);
     }
+
+    public void LOGOUT(){
+        app.getPayerButton().setEnabled(false);
+        app.getButton2Droite().setEnabled(false);
+        app.getButton1Gauche().setEnabled(false);
+        app.getLogoutButton().setEnabled(false);
+    }
+    public void LOGIN(){
+        app.getPayerButton().setEnabled(true);
+        app.getButton2Droite().setEnabled(true);
+        app.getButton1Gauche().setEnabled(true);
+        app.getLogoutButton().setEnabled(true);
+
+    }
+
 }

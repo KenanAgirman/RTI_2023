@@ -137,7 +137,17 @@ public class model  {
 
         return true;
     }
+    public String Achat(int id,int check) {
+        String message = "ACHAT#" + id + "#" + check;
+        String response = echange(message);
+        if (response != null) {
+            System.out.println("Réponse du serveur : " + response);
+        } else {
+            System.out.println("Aucune réponse du serveur.");
+        }
 
+        return response;
+    }
 
     public void getArticle(int id) throws UnsupportedEncodingException {
 
