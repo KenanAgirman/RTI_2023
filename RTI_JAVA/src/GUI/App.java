@@ -3,6 +3,7 @@ package GUI;
 import Controleur.Controleur;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionListener;
 
 public class App extends JFrame{
@@ -37,15 +38,24 @@ public class App extends JFrame{
 
 
     public App(){
-    setContentPane(panel1);
-    setSize(900,600);
-    setTitle("Maraicher");
-    pack();
+        setContentPane(panel1);
+        setSize(900, 600);
+        setTitle("Maraicher");
+        pack();
+        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+
+        SpinnerNumberModel spinnerModel = new SpinnerNumberModel(0, 0, 100, 1);
+        spinner1.setModel(spinnerModel);
+        DefaultTableModel tableModelEmp = (DefaultTableModel) table1.getModel();
+        String[] nomsColonnes = {"Article", "Prix à l'unité", "Quantité"};
+        tableModelEmp.setColumnIdentifiers(nomsColonnes);
+
     }
     public void setControleur(Controleur c){
         loginButton.addActionListener(c);
         button2Droite.addActionListener(c);
         button1Gauche.addActionListener(c);
+        getPayerButton().addActionListener(c);
         this.addWindowListener(c);
     }
 
@@ -79,6 +89,14 @@ public class App extends JFrame{
         LabelImage = labelImage;
     }
 
+    public JButton getPayerButton() {
+        return payerButton;
+    }
+
+    public JCheckBox getIsNouveauCheckBox() {
+        return isNouveauCheckBox;
+    }
+
     public JButton getButton1Gauche() {
         return button1Gauche;
     }
@@ -89,5 +107,9 @@ public class App extends JFrame{
 
     public JLabel getLabelImage() {
         return LabelImage;
+    }
+
+    public JSpinner getSpinner1() {
+        return spinner1;
     }
 }

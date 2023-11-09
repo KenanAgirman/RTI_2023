@@ -125,8 +125,8 @@ public class model  {
         }
     }
 
-    public boolean Login(String name, String password) {
-        String message = "LOGIN#" + name + "#" + password + "#" + 0;
+    public boolean Login(String name, String password,int check) {
+        String message = "LOGIN#" + name + "#" + password + "#" + check;
         String response = echange(message);
 
         if (response != null) {

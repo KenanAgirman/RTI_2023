@@ -37,7 +37,7 @@ public class Controleur extends WindowAdapter implements ActionListener {
         if(e.getSource()==app.getLoginButton())
         {
             try {
-                EnvoyerServeur();
+                LoginServeur();
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }
@@ -58,10 +58,21 @@ public class Controleur extends WindowAdapter implements ActionListener {
             }
 
         }
+
+        if(e.getSource()==app.getPayerButton()){
+            Payez();
+        }
     }
 
-    public void EnvoyerServeur() throws Exception {
+    public void LoginServeur() throws Exception {
         try {
+            int check;
+            String reponse;
+            if(app.getIsNouveauCheckBox().isSelected())
+            {
+                check = 1;
+            }
+            else check = 0;
             if(app.getSetLogin().getText().isEmpty()) throw  new Exception("Veuillez entrez un Login !!");
             else nom = app.getSetLogin().getText();
 
@@ -75,7 +86,7 @@ public class Controleur extends WindowAdapter implements ActionListener {
             JOptionPane.showMessageDialog(app, mdp, "Informations de Connexion", JOptionPane.INFORMATION_MESSAGE);
 
 
-            modele.Login(nom, mdp);
+            modele.Login(nom, mdp,check);
 
 
             modele.getArticle(1);
@@ -87,7 +98,16 @@ public class Controleur extends WindowAdapter implements ActionListener {
 
         }
     }
+    public void Payez() {
+        try {
+            int quant = (int) app.getSpinner1().getValue();
+            System.out.println("QUANT " + quant);
 
+            if(quant==0) throw new Exception("Veuillez avoir au moins 1 quantité");
+        } catch (Exception exception) {
+            JOptionPane.showMessageDialog(null, exception.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+        }
+    }
     public void SetArticle(){
         article arti;
 
