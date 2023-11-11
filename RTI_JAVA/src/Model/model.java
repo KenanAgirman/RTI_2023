@@ -125,7 +125,7 @@ public class model  {
         }
     }
 
-    public boolean Login(String name, String password,int check) {
+    public String Login(String name, String password,int check) {
         String message = "LOGIN#" + name + "#" + password + "#" + check;
         String response = echange(message);
 
@@ -135,7 +135,7 @@ public class model  {
             System.out.println("Aucune réponse du serveur.");
         }
 
-        return true;
+        return response;
     }
     public String Achat(int id,int check) {
         String message = "ACHAT#" + id + "#" + check;
@@ -149,6 +149,15 @@ public class model  {
         return response;
     }
 
+    public void Logout(){
+        String message = "LOGOUT";
+        String response = echange(message);
+        if (response != null) {
+            System.out.println("Réponse du serveur : " + response);
+        } else {
+            System.out.println("Aucune réponse du serveur.");
+        }
+    }
     public void getArticle(int id) throws UnsupportedEncodingException {
 
         article article;

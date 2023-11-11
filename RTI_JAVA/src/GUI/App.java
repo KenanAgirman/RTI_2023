@@ -43,7 +43,13 @@ public class App extends JFrame{
         setTitle("Maraicher");
         pack();
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-
+        /*
+        getPayerButton().setEnabled(false);
+        getButton2Droite().setEnabled(false);
+        getButton1Gauche().setEnabled(false);
+        getLogoutButton().setEnabled(false);
+        getLabelImage().setEnabled(false);
+         */
         SpinnerNumberModel spinnerModel = new SpinnerNumberModel(0, 0, 100, 1);
         spinner1.setModel(spinnerModel);
         DefaultTableModel tableModelEmp = (DefaultTableModel) table1.getModel();
@@ -57,6 +63,7 @@ public class App extends JFrame{
         button1Gauche.addActionListener(c);
         getPayerButton().addActionListener(c);
         getLogoutButton().addActionListener(c);
+        getTotalArticle().addActionListener(c);
         this.addWindowListener(c);
     }
 
@@ -112,6 +119,14 @@ public class App extends JFrame{
 
     public JButton getLogoutButton() {
         return logoutButton;
+    }
+
+    public JTextField getTotalArticle() {
+        return TotalArticle;
+    }
+
+    public JTable getTable1() {
+        return table1;
     }
 
     public JSpinner getSpinner1() {

@@ -10,12 +10,18 @@ import GUI.App;
 import Model.*;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.util.Vector;
 
+import static java.lang.String.valueOf;
 
 public class Controleur extends WindowAdapter implements ActionListener {
     private App app;
     private String nom;
     private String mdp;
+    private float totalCaddie = 0;
+    public article arti;
+
     model modele = model.getInstance();
 
     public Controleur() throws IOException {
@@ -24,13 +30,8 @@ public class Controleur extends WindowAdapter implements ActionListener {
 
     public void setApp(App app) {
         this.app = app;
-        LOGOUT();
-
     }
 
-    public App getApp() {
-        return app;
-    }
 
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -67,8 +68,9 @@ public class Controleur extends WindowAdapter implements ActionListener {
         }
     }
 
-    public void LoginServeur() throws Exception {
+    public void LoginServeur(){
         try {
+            String reponse;
             int check;
             if(app.getIsNouveauCheckBox().isSelected())
             {
@@ -88,12 +90,23 @@ public class Controleur extends WindowAdapter implements ActionListener {
             JOptionPane.showMessageDialog(app, mdp, "Informations de Connexion", JOptionPane.INFORMATION_MESSAGE);
 
 
-            modele.Login(nom, mdp,check);
+            reponse = modele.Login(nom, mdp,check);
+            String[] tokens;
 
+            tokens = reponse.split("#");
 
-            modele.getArticle(1);
-            LOGIN();
-            SetArticle();
+            if(tokens[0].equals("LOGIN")) {
+                if (tokens[1].equals("ko")){
+                    JOptionPane.showMessageDialog(null, "Vous etez deja inscrit", "Login", JOptionPane.INFORMATION_MESSAGE);
+                }
+                else {
+
+                    JOptionPane.showMessageDialog(null, "Bienvenu" +nom ,"Login", JOptionPane.INFORMATION_MESSAGE);
+                    modele.getArticle(1);
+                    LOGIN();
+                    SetArticle();
+                }
+            }
 
         }catch (Exception exception)
         {
@@ -107,19 +120,59 @@ public class Controleur extends WindowAdapter implements ActionListener {
             String reponse;
             article arti = modele.getArticleCourant();
             System.out.println("QUANT " + quant);
-            int artC =  arti.getId();
-            if(quant==0) throw new Exception("Veuillez avoir au moins 1 quantité");
+            int artC = arti.getId();
+            if (quant == 0) throw new Exception("Veuillez avoir au moins 1 quantité");
 
-            reponse = modele.Achat(artC,quant);
+            reponse = modele.Achat(artC, quant);
 
             System.out.println("REPONSE " + reponse);
+
+            String[] token;
+
+            token = reponse.split("#");
+
+            if (token[0].equals("ACHAT")) {
+
+                arti.setId(Integer.parseInt(token[1]));
+                arti.setIntitule(token[2]);
+                arti.setStock(Integer.parseInt(token[3]));
+                arti.setPrix(Float.parseFloat(token[4]));
+                String inti = arti.getIntitule();
+                Float prix = arti.getPrix();
+
+                totalCaddie += quant * prix;
+                app.getTotalArticle().setText(valueOf(totalCaddie));
+
+                DefaultTableModel articleTables = (DefaultTableModel) app.getTable1().getModel();
+                int rowCount = articleTables.getRowCount();
+                boolean articleTrouve = false;
+
+                for (int i = 0; i < rowCount; i++) {
+                    String intituleCaddie = (String) articleTables.getValueAt(i, 0);
+                    if (intituleCaddie.equals(inti)) {
+
+                        int ancienneQuantite = (int) articleTables.getValueAt(i, 2);
+                        int nouvelleQuantite = ancienneQuantite + quant;
+                        articleTables.setValueAt(nouvelleQuantite, i, 2);
+                        articleTrouve = true;
+                        break;
+                    }
+                }
+
+                if (!articleTrouve) {
+                    ajouterArticleTablePanier(inti, prix, quant);
+                }
+
+                arti.nbArticles++;
+            }
 
         } catch (Exception exception) {
             JOptionPane.showMessageDialog(null, exception.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
         }
     }
+
+
     public void SetArticle(){
-        article arti;
 
         arti = modele.getArticleCourant();
 
@@ -153,17 +206,32 @@ public class Controleur extends WindowAdapter implements ActionListener {
     }
 
     public void LOGOUT(){
+        modele.Logout();
+        JOptionPane JOptionPane = new JOptionPane();
+        JOptionPane.showMessageDialog(app,"AU REVOIR","Information",JOptionPane.INFORMATION_MESSAGE);
         app.getPayerButton().setEnabled(false);
         app.getButton2Droite().setEnabled(false);
         app.getButton1Gauche().setEnabled(false);
         app.getLogoutButton().setEnabled(false);
+        app.getLabelImage().setEnabled(false);
     }
     public void LOGIN(){
         app.getPayerButton().setEnabled(true);
         app.getButton2Droite().setEnabled(true);
         app.getButton1Gauche().setEnabled(true);
         app.getLogoutButton().setEnabled(true);
+        app.getLabelImage().setEnabled(true);
 
     }
+    private void ajouterArticleTablePanier(String intitule, float prix, int quantite)
+    {
+        DefaultTableModel articleTables = (DefaultTableModel) app.getTable1().getModel();
 
+        Vector ligne = new Vector();
+        ligne.add(intitule);
+        ligne.add(prix);
+        ligne.add(quantite);
+
+        articleTables.addRow(ligne);
+    }
 }

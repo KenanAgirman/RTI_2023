@@ -7,6 +7,8 @@ public class article {
     private float prix;
     private String image;
 
+    public static int nbArticles = 0;
+    private float totalCaddie;
     private int stock;
 
     public article() {
@@ -45,6 +47,13 @@ public class article {
         return stock;
     }
 
+    public float getTotalCaddie() {
+        return totalCaddie;
+    }
+
+    public void setTotalCaddie(float totalCaddie) {
+        this.totalCaddie = totalCaddie;
+    }
 
     public void setIntitule(String intitule) {
         this.intitule = intitule;
@@ -60,5 +69,13 @@ public class article {
 
     public void setStock(int stock) {
         this.stock = stock;
+    }
+
+    public void setNbArticles(int nbArticles) {
+        this.nbArticles = nbArticles;
+    }
+
+    public int getNbArticles() {
+        return nbArticles;
     }
 }
