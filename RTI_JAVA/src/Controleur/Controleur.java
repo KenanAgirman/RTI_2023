@@ -21,7 +21,7 @@ public class Controleur extends WindowAdapter implements ActionListener {
     private String mdp;
     private float totalCaddie = 0;
     public article arti;
-
+    private boolean annulationEffectuee = false;
     model modele = model.getInstance();
 
     public Controleur() throws IOException {
@@ -66,6 +66,14 @@ public class Controleur extends WindowAdapter implements ActionListener {
         if(e.getSource()==app.getLogoutButton()){
             LOGOUT();
         }
+
+        if(e.getSource()==app.getSupprimerButton()){
+            SupprimerLigne();
+        }
+
+        if(e.getSource()==app.getViderPanierButton()){
+            SupprimerTOUT();
+        }
     }
 
     public void LoginServeur(){
@@ -101,7 +109,7 @@ public class Controleur extends WindowAdapter implements ActionListener {
                 }
                 else {
 
-                    JOptionPane.showMessageDialog(null, "Bienvenu" +nom ,"Login", JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "Bienvenue " +nom ,"Login", JOptionPane.INFORMATION_MESSAGE);
                     modele.getArticle(1);
                     LOGIN();
                     SetArticle();
@@ -137,6 +145,7 @@ public class Controleur extends WindowAdapter implements ActionListener {
                 arti.setIntitule(token[2]);
                 arti.setStock(Integer.parseInt(token[3]));
                 arti.setPrix(Float.parseFloat(token[4]));
+                int idArticle = arti.getId();
                 String inti = arti.getIntitule();
                 Float prix = arti.getPrix();
 
@@ -148,20 +157,20 @@ public class Controleur extends WindowAdapter implements ActionListener {
                 boolean articleTrouve = false;
 
                 for (int i = 0; i < rowCount; i++) {
-                    String intituleCaddie = (String) articleTables.getValueAt(i, 0);
-                    if (intituleCaddie.equals(inti)) {
-
-                        int ancienneQuantite = (int) articleTables.getValueAt(i, 2);
+                    int idCaddie = (int) articleTables.getValueAt(i, 0); // Utilisez l'indice 0 pour la colonne d'id
+                    if (idCaddie == idArticle) {
+                        int ancienneQuantite = (int) articleTables.getValueAt(i, 3); // Utilisez l'indice 3 pour la colonne de quantité
                         int nouvelleQuantite = ancienneQuantite + quant;
-                        articleTables.setValueAt(nouvelleQuantite, i, 2);
+                        articleTables.setValueAt(nouvelleQuantite, i, 3);
                         articleTrouve = true;
                         break;
                     }
                 }
 
                 if (!articleTrouve) {
-                    ajouterArticleTablePanier(inti, prix, quant);
+                    ajouterArticleTablePanier(idArticle, inti, prix, quant);
                 }
+
 
                 arti.nbArticles++;
             }
@@ -223,15 +232,77 @@ public class Controleur extends WindowAdapter implements ActionListener {
         app.getLabelImage().setEnabled(true);
 
     }
-    private void ajouterArticleTablePanier(String intitule, float prix, int quantite)
+    private void ajouterArticleTablePanier(int idArticle, String intitule, float prix, int quantite)
     {
         DefaultTableModel articleTables = (DefaultTableModel) app.getTable1().getModel();
 
         Vector ligne = new Vector();
+        ligne.add(idArticle);
         ligne.add(intitule);
         ligne.add(prix);
         ligne.add(quantite);
 
         articleTables.addRow(ligne);
     }
+
+    public void SupprimerLigne(){
+        String reponse;
+        int indice = app.getTable1().getSelectedRow();
+        if(indice == -1)
+        {
+            JOptionPane JOptionPane = new JOptionPane();
+            JOptionPane.showMessageDialog(app,"Veuillez Selectionnez un article !!","Information",JOptionPane.INFORMATION_MESSAGE);
+        }
+        else{
+            DefaultTableModel articleTables = (DefaultTableModel) app.getTable1().getModel();
+
+            // Récupérer les informations de la ligne sélectionnée
+            int IdArticle = (int) articleTables.getValueAt(indice, 0);
+            String intitule = (String) articleTables.getValueAt(indice, 1);
+            Float prix = (Float) articleTables.getValueAt(indice, 2);
+            int quantite = (int) articleTables.getValueAt(indice, 3);
+
+            articleTables.setValueAt(quantite - 1, indice, 3);
+
+
+            if (quantite - 1 == 0) {
+                articleTables.removeRow(indice);
+            }
+            totalCaddie -= prix;
+            app.getTotalArticle().setText(String.valueOf(totalCaddie));
+            reponse = modele.Cancel(IdArticle, quantite);
+            System.out.println("Reponse " +  reponse);
+            arti.nbArticles--;
+        }
+    }
+
+    public void SupprimerTOUT() {
+        String reponse;
+
+        DefaultTableModel articleTables = (DefaultTableModel) app.getTable1().getModel();
+
+        // Vérifiez si l'annulation a déjà été effectuée
+        if (!annulationEffectuee) {
+            reponse = modele.cancelAll(articleTables);
+            System.out.println("Reponse " + reponse);
+            annulationEffectuee = true; // Marquez l'annulation comme effectuée après l'avoir envoyée au serveur
+            arti.nbArticles = 0;
+
+            System.out.println("NB Articles après annulation : " + arti.nbArticles);
+        }
+
+        int rowCount = articleTables.getRowCount();
+
+        for (int i = rowCount - 1; i >= 0; i--) {
+            articleTables.removeRow(i);
+        }
+
+        System.out.println("TO " + arti.nbArticles);
+        // Mettez à jour le totalCaddie et l'affichage
+        totalCaddie = 0;
+        app.getTotalArticle().setText(String.valueOf(totalCaddie));
+    }
+
+
+
 }

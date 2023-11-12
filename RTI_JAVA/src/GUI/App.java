@@ -53,7 +53,7 @@ public class App extends JFrame{
         SpinnerNumberModel spinnerModel = new SpinnerNumberModel(0, 0, 100, 1);
         spinner1.setModel(spinnerModel);
         DefaultTableModel tableModelEmp = (DefaultTableModel) table1.getModel();
-        String[] nomsColonnes = {"Article", "Prix à l'unité", "Quantité"};
+        String[] nomsColonnes = {"Id","Article", "Prix à l'unité", "Quantité"};
         tableModelEmp.setColumnIdentifiers(nomsColonnes);
 
     }
@@ -64,6 +64,8 @@ public class App extends JFrame{
         getPayerButton().addActionListener(c);
         getLogoutButton().addActionListener(c);
         getTotalArticle().addActionListener(c);
+        getSupprimerButton().addActionListener(c);
+        getViderPanierButton().addActionListener(c);
         this.addWindowListener(c);
     }
 
@@ -127,6 +129,14 @@ public class App extends JFrame{
 
     public JTable getTable1() {
         return table1;
+    }
+
+    public JButton getViderPanierButton() {
+        return viderPanierButton;
+    }
+
+    public JButton getSupprimerButton() {
+        return supprimerButton;
     }
 
     public JSpinner getSpinner1() {

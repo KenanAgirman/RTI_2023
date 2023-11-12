@@ -1,12 +1,17 @@
 package Model;
+import GUI.App;
+
+import javax.swing.table.DefaultTableModel;
 import java.io.*;
 import java.net.Socket;
 
 public class model  {
     public static int TAILLE_MAX_DATA = 1000;
+
     private article articleCourant;
 
     public static Socket csocket;
+
     private static model INSTANCE;
 
     private model() {
@@ -137,6 +142,43 @@ public class model  {
 
         return response;
     }
+
+    public String Cancel(int id ,int idstock){
+        String message = "CANCEL#" + id + "#" + idstock;
+        String response = echange(message);
+
+        if (response != null) {
+            System.out.println("Réponse du serveur : " + response);
+        } else {
+            System.out.println("Aucune réponse du serveur.");
+        }
+
+        return response;
+    }
+
+    public String cancelAll(DefaultTableModel articleTables) {
+        StringBuilder messageBuilder = new StringBuilder("CANCELALL#" + articleTables.getRowCount());
+
+        for (int i = 0; i < articleTables.getRowCount(); i++) {
+            int currentId = (int) articleTables.getValueAt(i, 0);
+            int currentQuantite = (int) articleTables.getValueAt(i, 3);
+
+            // Utilisez la quantité correcte pour chaque article
+            messageBuilder.append("#").append(currentId).append("#").append(currentQuantite);
+        }
+
+        String message = messageBuilder.toString();
+        System.out.println("Message d'annulation : " + message);
+
+        String response = echange(message);
+        System.out.println("Reponse " + response);
+
+        return response;
+    }
+
+
+
+
     public String Achat(int id,int check) {
         String message = "ACHAT#" + id + "#" + check;
         String response = echange(message);
