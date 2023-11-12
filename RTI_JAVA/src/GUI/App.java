@@ -66,6 +66,8 @@ public class App extends JFrame{
         getTotalArticle().addActionListener(c);
         getSupprimerButton().addActionListener(c);
         getViderPanierButton().addActionListener(c);
+        getViderPanierButton().addActionListener(c);
+        getConfirmerButton().addActionListener(c);
         this.addWindowListener(c);
     }
 
@@ -129,6 +131,10 @@ public class App extends JFrame{
 
     public JTable getTable1() {
         return table1;
+    }
+
+    public JButton getConfirmerButton() {
+        return confirmerButton;
     }
 
     public JButton getViderPanierButton() {

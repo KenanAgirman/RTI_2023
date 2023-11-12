@@ -14,6 +14,7 @@ import javax.swing.table.DefaultTableModel;
 import java.util.Vector;
 
 import static java.lang.String.valueOf;
+import static java.lang.System.exit;
 
 public class Controleur extends WindowAdapter implements ActionListener {
     private App app;
@@ -73,6 +74,10 @@ public class Controleur extends WindowAdapter implements ActionListener {
 
         if(e.getSource()==app.getViderPanierButton()){
             SupprimerTOUT();
+        }
+
+        if(e.getSource()==app.getConfirmerButton()){
+            Confirmer();
         }
     }
 
@@ -281,11 +286,10 @@ public class Controleur extends WindowAdapter implements ActionListener {
 
         DefaultTableModel articleTables = (DefaultTableModel) app.getTable1().getModel();
 
-        // Vérifiez si l'annulation a déjà été effectuée
         if (!annulationEffectuee) {
             reponse = modele.cancelAll(articleTables);
             System.out.println("Reponse " + reponse);
-            annulationEffectuee = true; // Marquez l'annulation comme effectuée après l'avoir envoyée au serveur
+            annulationEffectuee = true;
             arti.nbArticles = 0;
 
             System.out.println("NB Articles après annulation : " + arti.nbArticles);
@@ -303,6 +307,29 @@ public class Controleur extends WindowAdapter implements ActionListener {
         app.getTotalArticle().setText(String.valueOf(totalCaddie));
     }
 
+    public void Confirmer()
+    {
+        String reponse;
+        DefaultTableModel articleTables = (DefaultTableModel) app.getTable1().getModel();
 
+        reponse =  modele.CONFIRMER(nom,totalCaddie);
+
+        String[] tokens;
+
+        tokens = reponse.split("#");
+
+        if(tokens[0].equals("CONFIRMER")){
+            int rowCount = articleTables.getRowCount();
+
+            for (int i = rowCount - 1; i >= 0; i--) {
+                articleTables.removeRow(i);
+                totalCaddie = 0;
+            }
+            JOptionPane JOptionPane = new JOptionPane();
+            JOptionPane.showMessageDialog(app,"MERCI  AU REVOIR ","Information",JOptionPane.INFORMATION_MESSAGE);
+            exit(0);
+
+        }
+    }
 
 }

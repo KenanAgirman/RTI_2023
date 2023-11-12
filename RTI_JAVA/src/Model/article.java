@@ -7,6 +7,7 @@ public class article {
     private float prix;
     private String image;
 
+    public static int numFactures = 0;
     public static int nbArticles = 0;
     private float totalCaddie;
     private int stock;
@@ -77,5 +78,13 @@ public class article {
 
     public int getNbArticles() {
         return nbArticles;
+    }
+
+    public static void setNumFactures(int numFactures) {
+        article.numFactures = numFactures;
+    }
+
+    public static int getNumFactures() {
+        return numFactures;
     }
 }

@@ -176,8 +176,18 @@ public class model  {
         return response;
     }
 
+    public String CONFIRMER(String name,float totalCaddie) {
+        article.numFactures++;
+        String message = "CONFIRMER#" + name + "#" + article.numFactures + "#" + totalCaddie;
+        String response = echange(message);
+        if (response != null) {
+            System.out.println("Réponse du serveur : " + response);
+        } else {
+            System.out.println("Aucune réponse du serveur.");
+        }
 
-
+        return response;
+    }
 
     public String Achat(int id,int check) {
         String message = "ACHAT#" + id + "#" + check;
