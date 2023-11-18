@@ -12,5 +12,6 @@ public class Main {
         app.setControleur(controleur);
         controleur.setApp(app);
         app.setVisible(true);
+
     }
 }
