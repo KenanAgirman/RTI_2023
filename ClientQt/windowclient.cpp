@@ -541,7 +541,7 @@ void WindowClient::on_pushButtonSupprimer_clicked()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void WindowClient::on_pushButtonViderPanier_clicked()
 {
-  char requete[200], reponse[100],reponseConnecte[100];;
+  char requete[200], reponse[100],reponseConnecte[100];
   
   sprintf(requete, "CANCELALL#%d", nbArticles);
 
@@ -582,7 +582,7 @@ void WindowClient::on_pushButtonViderPanier_clicked()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void WindowClient::on_pushButtonPayer_clicked()
 {
-    char requete[200],reponse[200];
+    char requete[200],reponse[200],reponseConnecte[100];
     const char* name = getNom();
     int nbEcrits,nbLus,i = 0;
 
@@ -590,21 +590,19 @@ void WindowClient::on_pushButtonPayer_clicked()
     sprintf(requete, "CONFIRMER#%s#%d#%f#",name,numFacture,totalCaddie);
     SendReceive(requete, sClientClient, reponse, sizeof(reponse));
 
-   char *ptr = strtok(reponse, "#");
-
-   if (strcmp(ptr, "CONFIRMER") == 0)
-   {
-       for(i = 0; i<nbArticles;i++)
-       {
-          Caddie[i].id = 0;
-          videTablePanier();
-
-          totalCaddie = 0.0;
-          setTotal(-1.0);
-       }
-
-       dialogueMessage("QUITTER ","Merci");
-       exit(1);
+    char *ptr = strtok(reponse, "#");
+    if (strcmp(ptr, "CONFIRMER") == 0)
+    {
+        int idFacture = atoi(strtok(NULL, "#"));
+        printf("ptr = %s\n", ptr);
+        printf("SE = %s\n", reponseConnecte);
+        for (i = 0; i < nbArticles; i++)
+        {
+            sprintf(requete, "VENTE#%s#%d#%d#%d",name,idFacture, Caddie[i].id,Caddie[i].stock);
+            SendReceive(requete, sClientClient, reponse, sizeof(reponse));
+            printf("ptr = %s\n", ptr);
+            printf("SE = %s\n", reponseConnecte);
+        }
    }
 }
 void WindowClient::getArticle(int id)

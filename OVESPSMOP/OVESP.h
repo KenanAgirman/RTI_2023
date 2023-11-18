@@ -22,6 +22,7 @@ void SMOP_Close();
 
 void SMOP_Facture(const char* user,int numFacture,float total,char* rep,MYSQL* connexion);
 
-void SMOP_Logout(int socket);
+void SMOP_Vente(const char* user, int idFacture, int idArticle, int quantite, char* rep, MYSQL* connexion);
 
+void SMOP_Logout(int socket);
 #endif
