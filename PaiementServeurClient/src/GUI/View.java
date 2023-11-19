@@ -39,6 +39,7 @@ public class View extends JFrame{
     public void setControleur(Controleur c){
         getLOGINButton().addActionListener(c);
         getCLEANTABLEButton().addActionListener(c);
+        getLOGOUTButton().addActionListener(c);
         this.addWindowListener(c);
     }
     public JTable getTable1() {

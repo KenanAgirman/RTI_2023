@@ -55,13 +55,14 @@ public class Controleur extends WindowAdapter implements Logger,ActionListener {
             int nbThread = configReader.getNbThread();
             int port = configReader.getPort();
             protocole = new VESPA(this);
-            ThreadServeur serveur = new ThreadServeurPool(port,protocole,nbThread,this);
-            serveur.start();
+            threadServeur = new ThreadServeurPool(port, protocole, nbThread, this);
+            threadServeur.start();
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
 
     public void CLEANALL(){
         DefaultTableModel articleTables = (DefaultTableModel) view.getTable1().getModel();
@@ -73,14 +74,13 @@ public class Controleur extends WindowAdapter implements Logger,ActionListener {
     }
 
     public void LOGOUT(){
-        
-        threadServeur.interrupt();
 
-        JOptionPane JOptionPane = new JOptionPane();
-        JOptionPane.showMessageDialog(view, "threadServeur  ARRETE ", "Information", JOptionPane.INFORMATION_MESSAGE);
+        if(threadServeur!=null){
+            threadServeur.interrupt();
 
-        view.dispose();
+        }
     }
+
     @Override
     public void Trace(String message) {
         DefaultTableModel articleTables = (DefaultTableModel) view.getTable1().getModel();
