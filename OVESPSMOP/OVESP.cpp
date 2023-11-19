@@ -165,7 +165,26 @@ bool SMOP(char *requete, char *reponse, int socket,MYSQL* connexion)
 
             SMOP_Facture(name, numf, prix, reponse,connexion);
 
+
 		}
+        else{
+            if(strcmp(ptr,"VENTE")==0)
+            {
+              int numf,qt;
+              int  idArticle;
+              char name[50];
+
+              strcpy(name,strtok(NULL,"#"));
+              numf = atoi(strtok(NULL,"#"));
+              idArticle = atof(strtok(NULL,"#"));
+              qt = atoi(strtok(NULL,"#"));
+
+
+              SMOP_Vente(name, numf, idArticle,qt, reponse,connexion);
+
+            }
+
+        }
 	    
     }
 
@@ -425,8 +444,9 @@ void SMOP_Cancel_All(char *requete, int nbArti, char *rep, MYSQL *connexion)
     printf("Requête CANCELALL = %s\n", requete);
 
     char *token = strtok(requete, "#");
-    
-    if (strcmp(token, "CANCELALL") != 0) {
+
+    if (strcmp(token, "CANCELALL") != 0)
+    {
         printf("Requête non valide : %s\n", requete);
         return;
     }
@@ -445,6 +465,7 @@ void SMOP_Cancel_All(char *requete, int nbArti, char *rep, MYSQL *connexion)
 
         printf("Article %d - ID: %d, Quantité: %d\n", i + 1, id, quantite);
 
+
         char sqlQuery[200];
         snprintf(sqlQuery, sizeof(sqlQuery), "UPDATE articles SET stock = stock + %d WHERE id = %d", quantite, id);
 
@@ -458,8 +479,9 @@ void SMOP_Cancel_All(char *requete, int nbArti, char *rep, MYSQL *connexion)
     sprintf(rep, "CANCELALL");
 }
 
-void SMOP_Facture(const char* user, int numFacture, float total, char* rep,MYSQL* connexion)
+void SMOP_Facture(const char* user, int numFacture, float total, char* rep, MYSQL* connexion)
 {
+    printf("FACTURESSSSSSSSS\n");
     char requete[200];
     MYSQL_RES* resultat;
     MYSQL_ROW row;
@@ -468,8 +490,7 @@ void SMOP_Facture(const char* user, int numFacture, float total, char* rep,MYSQL
     struct tm *tm_info;
     char dateFacture[20];
 
-
-    printf("LOGIN =%s\n",user);
+    printf("LOGIN =%s\n", user);
 
     sprintf(requete, "SELECT id FROM clients WHERE login = '%s';", user);
 
@@ -490,6 +511,7 @@ void SMOP_Facture(const char* user, int numFacture, float total, char* rep,MYSQL
         mysql_free_result(resultat);
     } else {
         sprintf(rep, "CONFIRMER-1");
+        return;
     }
 
     time(&maintenant);
@@ -501,10 +523,75 @@ void SMOP_Facture(const char* user, int numFacture, float total, char* rep,MYSQL
 
     if (mysql_query(connexion, requete) != 0) {
         fprintf(stderr, "Erreur de mysql_query: %s\n", mysql_error(connexion));
+        sprintf(rep, "CONFIRMER-1");
         return;
     }
-    sprintf(rep, "CONFIRMER");
 
+    // Récupérer l'ID de la facture créée
+    sprintf(requete, "SELECT LAST_INSERT_ID();");
+    if (mysql_query(connexion, requete) != 0) {
+        fprintf(stderr, "Erreur de mysql_query pour récupérer l'ID de la facture: %s\n", mysql_error(connexion));
+        sprintf(rep, "CONFIRMER-1");
+        return;
+    }
+
+    resultat = mysql_store_result(connexion);
+
+    if (resultat) {
+        if ((row = mysql_fetch_row(resultat))) {
+            int idFacture = atoi(row[0]);
+            sprintf(rep, "CONFIRMER#%d", idFacture);
+        } else {
+            sprintf(rep, "CONFIRMER-1");
+        }
+
+        mysql_free_result(resultat);
+    } else {
+        sprintf(rep, "CONFIRMER-1");
+    }
+}
+
+void SMOP_Vente(const char* user, int idFacture, int idArticle, int quantite, char* rep, MYSQL* connexion)
+{
+    printf("Je passe ICICICICI VENTE TOUT\n");
+    char requete[200];
+
+    // Insérez dans la table des ventes
+    sprintf(requete, "INSERT INTO ventes (idFacture, idArticle, quantite) VALUES (%d, %d,%d);", idFacture, idArticle, quantite);
+
+    if (mysql_query(connexion, requete) != 0) {
+        fprintf(stderr, "Erreur de mysql_query: %s\n", mysql_error(connexion));
+        return;
+    }else{
+            sprintf(requete, "UPDATE factures SET paye = 1 WHERE idFacture = %d;", idFacture);
+            sprintf(rep, "VENTEOK");
+    }
+}
+
+int getIdClient(const char* user, MYSQL* connexion)
+{
+    char requete[200];
+    MYSQL_ROW row;
+    MYSQL_RES* resultat;
+    int idClients = -1;
+
+    sprintf(requete, "SELECT id FROM clients WHERE login = '%s';", user);
+
+    if (mysql_query(connexion, requete) != 0) {
+        fprintf(stderr, "Erreur de mysql_query: %s\n", mysql_error(connexion));
+        return -1;
+    }
+
+    resultat = mysql_store_result(connexion);
+
+    if (resultat) {
+        if ((row = mysql_fetch_row(resultat))) {
+            idClients = atoi(row[0]);
+        }
+        mysql_free_result(resultat);
+    }
+
+    return idClients;
 }
 
 
