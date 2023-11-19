@@ -163,7 +163,6 @@ public class model  {
             int currentId = (int) articleTables.getValueAt(i, 0);
             int currentQuantite = (int) articleTables.getValueAt(i, 3);
 
-            // Utilisez la quantité correcte pour chaque article
             messageBuilder.append("#").append(currentId).append("#").append(currentQuantite);
         }
 
@@ -176,10 +175,26 @@ public class model  {
         return response;
     }
 
-    public String CONFIRMER(String name,float totalCaddie) {
+    public String confirmer(String name, float totalCaddie,int quantite) {
         article.numFactures++;
-        String message = "CONFIRMER#" + name + "#" + article.numFactures + "#" + totalCaddie;
+        String message = "CONFIRMER#" + name + "#" + article.numFactures + "#" + totalCaddie + "#" + quantite;
         String response = echange(message);
+
+        if (response != null) {
+            System.out.println("Réponse du serveur : " + response);
+        } else {
+            System.out.println("Aucune réponse du serveur.");
+        }
+
+        return response;
+    }
+
+    public String vente(String name, int idFacture, int idArticle, int quantite) {
+        String message = "VENTE#" + name + "#" + idFacture + "#" + idArticle + "#" + quantite;
+
+        System.out.println("VENTES " + message);
+        String response = echange(message);
+
         if (response != null) {
             System.out.println("Réponse du serveur : " + response);
         } else {

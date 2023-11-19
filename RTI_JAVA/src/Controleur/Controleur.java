@@ -307,28 +307,35 @@ public class Controleur extends WindowAdapter implements ActionListener {
         app.getTotalArticle().setText(String.valueOf(totalCaddie));
     }
 
-    public void Confirmer()
-    {
+    public void Confirmer() {
         String reponse;
         DefaultTableModel articleTables = (DefaultTableModel) app.getTable1().getModel();
 
-        reponse =  modele.CONFIRMER(nom,totalCaddie);
+        reponse = modele.confirmer(nom, totalCaddie,arti.getStock());
 
-        String[] tokens;
+        String[] tokens = reponse.split("#");
 
-        tokens = reponse.split("#");
-
-        if(tokens[0].equals("CONFIRMER")){
+        if (tokens[0].equals("CONFIRMER")) {
             int rowCount = articleTables.getRowCount();
 
-            for (int i = rowCount - 1; i >= 0; i--) {
+            int quantite = 0;
+            int IdArticle = 0;
+            for (int i = 0; i < articleTables.getRowCount(); i++) {
+
+                IdArticle = (int) articleTables.getValueAt(i, 0);
+                quantite = (int) articleTables.getValueAt(i, 3);
+                System.out.println("FATCURES " + arti.numFactures);
+                reponse = modele.vente(nom, arti.numFactures, IdArticle, quantite);
+
+            }
+            for (int i = 0; i < articleTables.getRowCount(); i++) {
+
                 articleTables.removeRow(i);
-                totalCaddie = 0;
             }
             JOptionPane JOptionPane = new JOptionPane();
-            JOptionPane.showMessageDialog(app,"MERCI  AU REVOIR ","Information",JOptionPane.INFORMATION_MESSAGE);
-            exit(0);
+            JOptionPane.showMessageDialog(app, "MERCI  AU REVOIR ", "Information", JOptionPane.INFORMATION_MESSAGE);
 
+            app.dispose();
         }
     }
 
