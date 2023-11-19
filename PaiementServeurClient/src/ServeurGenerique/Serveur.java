@@ -31,7 +31,7 @@ public class Serveur {
         System.out.println("Adresse IP distante : " +
                 csocket.getInetAddress().getHostAddress());
         System.out.println("Port distant : " + csocket.getPort());
-
+        System.out.println("LEILA ");
         // Fermeture de la connexion
         ssocket.close();
         csocket.close();
