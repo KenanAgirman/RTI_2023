@@ -1,5 +1,5 @@
 package GUI;
-
+import Controleur.Controleur;
 import com.formdev.flatlaf.FlatDarculaLaf;
 
 import javax.swing.*;
@@ -28,13 +28,32 @@ public class View extends JFrame{
         setVisible(true);
     }
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         FlatDarculaLaf.setup();
         View view = new View();
 
+        Controleur controleur = new Controleur(view);
+        view.setControleur(controleur);
     }
 
+    public void setControleur(Controleur c){
+        getLOGINButton().addActionListener(c);
+        getCLEANTABLEButton().addActionListener(c);
+        this.addWindowListener(c);
+    }
     public JTable getTable1() {
         return table1;
+    }
+
+    public JButton getCLEANTABLEButton() {
+        return CLEANTABLEButton;
+    }
+
+    public JButton getLOGOUTButton() {
+        return LOGOUTButton;
+    }
+
+    public JButton getLOGINButton() {
+        return LOGINButton;
     }
 }

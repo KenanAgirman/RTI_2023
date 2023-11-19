@@ -21,8 +21,8 @@ public class LoginGui extends JFrame{
         setContentPane(panel1);
         setSize(500, 200);
         setTitle("CLIENT VESPA");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Fermer l'application lorsque la fenêtre est fermée
-        setVisible(true); // Afficher la fenêtre
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setVisible(true);
     }
 
     public static void main(String[] args){
