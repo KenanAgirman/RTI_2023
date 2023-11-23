@@ -23,6 +23,7 @@ public class VESPA implements Protocole {
     @Override
     public Reponse TraiteRequete(Requete requete, Socket socket) throws FinConnexionException {
         if(requete instanceof RequeteLOGIN) {
+            System.out.println("KENAN ET LEILALALALAL");
             return TraiteRequeteLOGIN((RequeteLOGIN) requete, socket);
         }
 

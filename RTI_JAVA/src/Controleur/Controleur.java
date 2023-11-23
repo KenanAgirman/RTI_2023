@@ -20,7 +20,7 @@ public class Controleur extends WindowAdapter implements ActionListener {
     private App app;
     private String nom;
     private String mdp;
-    private float totalCaddie = 0;
+    private float totalCaddie = 0.0F;
     public article arti;
     private boolean annulationEffectuee = false;
     model modele = model.getInstance();

@@ -1,12 +1,17 @@
+import Controleur.Controleur;
+import GUI.View;
 import ServeurGenerique.Serveur;
+import com.formdev.flatlaf.FlatDarculaLaf;
 
 import java.io.IOException;
 
 public class Main {
-    public static void main(String[] args) throws IOException {
-        Serveur serveur = new Serveur();
-        serveur.LoginServeur();
-        System.out.println("AU tour du client");
+    public static void main(String[] args) {
+        FlatDarculaLaf.setup();
+        View view = new View();
+
+        Controleur controleur = new Controleur(view);
+        view.setControleur(controleur);
 
     }
 }

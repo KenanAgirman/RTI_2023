@@ -25,7 +25,7 @@ public class model  {
         return INSTANCE;
     }
     public void Connect() throws IOException {
-        csocket = new Socket("192.168.146.128", 50000);
+        csocket = new Socket("192.168.62.129", 50000);
         System.out.println("Connexion établie.");
 
         // Caractéristiques de la socket

@@ -38,7 +38,11 @@
                     <preferred-size width="150" height="-1"/>
                   </grid>
                 </constraints>
-                <properties/>
+                <properties>
+                  <editable value="false"/>
+                  <enabled value="false"/>
+                  <font name="Broadway" size="12" style="0"/>
+                </properties>
               </component>
               <hspacer id="9b846">
                 <constraints>
@@ -64,7 +68,11 @@
                     <preferred-size width="150" height="-1"/>
                   </grid>
                 </constraints>
-                <properties/>
+                <properties>
+                  <editable value="false"/>
+                  <enabled value="false"/>
+                  <font name="Broadway" size="12" style="0"/>
+                </properties>
               </component>
               <hspacer id="aa0e3">
                 <constraints>

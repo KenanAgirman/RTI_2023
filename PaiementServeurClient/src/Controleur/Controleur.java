@@ -52,6 +52,7 @@ public class Controleur extends WindowAdapter implements Logger,ActionListener {
 
     public void DEMARRER() {
         try {
+            System.out.println("Kenan");
             int nbThread = configReader.getNbThread();
             int port = configReader.getPort();
             protocole = new VESPA(this);

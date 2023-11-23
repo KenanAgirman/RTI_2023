@@ -1,8 +1,10 @@
 package GUI;
 
+import Controleur.Controleur;
 import com.formdev.flatlaf.FlatDarculaLaf;
 
 import javax.swing.*;
+import java.io.IOException;
 
 public class LoginGui extends JFrame{
     private JPanel panel1;
@@ -24,10 +26,34 @@ public class LoginGui extends JFrame{
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
     }
-
-    public static void main(String[] args){
+    public void setControleur(Controleur c){
+        getLOGINButton().addActionListener(c);
+        this.addWindowListener(c);
+    }
+    public static void main(String[] args) throws IOException {
         FlatDarculaLaf.setup();
         LoginGui view = new LoginGui();
+        Controleur controleur = new Controleur(view);
+        view.setControleur(controleur);
+    }
 
+    public JButton getLOGINButton() {
+        return LOGINButton;
+    }
+
+    public JTextField getTextFieldIpServeur() {
+        return textFieldIpServeur;
+    }
+
+    public JTextField getTextFieldPortServeur() {
+        return textFieldPortServeur;
+    }
+
+    public JTextField getTextFieldLogin() {
+        return textFieldLogin;
+    }
+
+    public JPasswordField getTextPassword() {
+        return textPassword;
     }
 }
