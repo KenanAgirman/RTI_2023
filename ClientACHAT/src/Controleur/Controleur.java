@@ -1,10 +1,15 @@
 package Controleur;
 
 import CONFIG.ConfigReader;
+import ControleurFacture.ControleurFacture;
+import GUI.Facture;
 import GUI.LoginGui;
 import Protocol.ReponseLOGIN;
+import Protocol.ReponseLOGOUT;
 import Protocol.RequeteLOGIN;
+import Protocol.RequeteLOGOUT;
 
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -17,59 +22,92 @@ public class Controleur extends WindowAdapter implements ActionListener {
 
     private Socket socket;
     private ConfigReader configReader;
-    public int ip;
-    public int port;
-    public String nom;
-    public String password;
     private ObjectOutputStream oos;
     private ObjectInputStream ois;
     private LoginGui view;
-    public Controleur(LoginGui view) throws IOException {
-        this.view = view;
-        this.configReader = new ConfigReader();
-        String ip = configReader.getIP();
-        int port = (configReader.getPort());
 
-        view.getTextFieldIpServeur().setText(ip);
-        view.getTextFieldPortServeur().setText(String.valueOf(port));
-        socket = new Socket("localhost", port);
+    private ControleurFacture controleurFactures;
+    private Facture factureView;
 
-        oos = new ObjectOutputStream(socket.getOutputStream());
-        oos = new ObjectOutputStream(socket.getOutputStream());
+    private String login;
+    public int idClient;
 
+    public Controleur(LoginGui view) {
+        try {
+            this.view = view;
+            this.configReader = new ConfigReader();
+            String ip = configReader.getIP();
+            int port = configReader.getPort();
+
+            view.getTextFieldIpServeur().setText(ip);
+            view.getTextFieldPortServeur().setText(String.valueOf(port));
+            socket = new Socket("localhost", port);
+
+            oos = new ObjectOutputStream(socket.getOutputStream());
+            ois = new ObjectInputStream(socket.getInputStream());
+
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if(e.getSource()==view.getLOGINButton()){
-            try {
-                System.out.println("LEILA");
-                LoginClient();
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            } catch (ClassNotFoundException ex) {
-                throw new RuntimeException(ex);
-            }
+        if (e.getSource() == view.getLOGINButton()) {
+            LoginClient();
+        }
+
+        if (e.getSource() == view.getLOGOUTButton()) {
+            LogoutClient();
         }
     }
 
-    public void LoginClient() throws IOException, ClassNotFoundException {
+    public void LoginClient() {
         try {
-        nom = view.getTextFieldLogin().getText();
-        password = view.getTextPassword().getText();
+            login = view.getTextFieldLogin().getText();
+            String password = view.getTextPassword().getText();
 
-        System.out.println("Nom " + nom);
-        System.out.println("Password " + password);
+            RequeteLOGIN requete = new RequeteLOGIN(login, password);
+            oos.writeObject(requete);
+            ReponseLOGIN reponse = (ReponseLOGIN) ois.readObject();
 
-        RequeteLOGIN requete = new RequeteLOGIN(nom, password);
+            if (reponse != null && reponse.getIdUser() != 0) {
+                System.out.println("Réponse du serveur : " + reponse);
+                System.out.println("IDCLIENT " + reponse.getIdUser());
+                idClient = reponse.getIdUser();
+                view.setVisible(false);
+                Facture factureView = new Facture();
+                ControleurFacture controleurFacture = new ControleurFacture(factureView, idClient, oos, ois, this);
 
-        oos = new ObjectOutputStream(socket.getOutputStream());
+                factureView.setControleur(controleurFacture);
 
-        System.out.println("REQUETE " + requete);
-        oos.writeObject(requete);
-    } catch (IOException e) {
-        e.printStackTrace();
+            } else {
+                System.out.println("Erreur de login");
+            }
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+            System.out.println(e.getMessage());
+        }
+    }
+    public void LogoutClient() {
+        try {
+            String login = view.getTextFieldLogin().getText();
+            RequeteLOGOUT requete = new RequeteLOGOUT(login);
+            System.out.println("Réponse du serveur : " + requete);
+            oos.writeObject(requete);
+            ReponseLOGOUT reponse = (ReponseLOGOUT) ois.readObject();
+            System.out.println("Réponse du serveur : " + reponse);
+
+        }catch (Exception exception){
+            JOptionPane.showMessageDialog(null,exception.getMessage(),"Erreur",JOptionPane.ERROR_MESSAGE);
+            System.out.println(exception.getMessage());
+
+        }
     }
 
+    public String getLogin() {
+        return login;
     }
 }

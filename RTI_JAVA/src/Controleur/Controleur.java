@@ -14,7 +14,6 @@ import javax.swing.table.DefaultTableModel;
 import java.util.Vector;
 
 import static java.lang.String.valueOf;
-import static java.lang.System.exit;
 
 public class Controleur extends WindowAdapter implements ActionListener {
     private App app;
@@ -22,6 +21,9 @@ public class Controleur extends WindowAdapter implements ActionListener {
     private String mdp;
     private float totalCaddie = 0.0F;
     public article arti;
+
+    public int IdFactureControleur;
+    public int numFacture = 0;
     private boolean annulationEffectuee = false;
     model modele = model.getInstance();
 
@@ -162,9 +164,9 @@ public class Controleur extends WindowAdapter implements ActionListener {
                 boolean articleTrouve = false;
 
                 for (int i = 0; i < rowCount; i++) {
-                    int idCaddie = (int) articleTables.getValueAt(i, 0); // Utilisez l'indice 0 pour la colonne d'id
+                    int idCaddie = (int) articleTables.getValueAt(i, 0);
                     if (idCaddie == idArticle) {
-                        int ancienneQuantite = (int) articleTables.getValueAt(i, 3); // Utilisez l'indice 3 pour la colonne de quantité
+                        int ancienneQuantite = (int) articleTables.getValueAt(i, 3);
                         int nouvelleQuantite = ancienneQuantite + quant;
                         articleTables.setValueAt(nouvelleQuantite, i, 3);
                         articleTrouve = true;
@@ -176,8 +178,22 @@ public class Controleur extends WindowAdapter implements ActionListener {
                     ajouterArticleTablePanier(idArticle, inti, prix, quant);
                 }
 
-
                 arti.nbArticles++;
+                String reponse2;
+
+                numFacture++;
+                System.out.println("NumFacture " + numFacture);
+                reponse2 = modele.confirmer(nom,numFacture,totalCaddie,quant);
+
+                String[] token2;
+
+                token2 = reponse2.split("#");
+
+                if(token2[0].equals("CONFIRMER")){
+                    IdFactureControleur = Integer.parseInt(token2[1]);
+                    System.out.println("IDFACTURE " + IdFactureControleur);
+
+                }
             }
 
         } catch (Exception exception) {
@@ -252,6 +268,7 @@ public class Controleur extends WindowAdapter implements ActionListener {
 
     public void SupprimerLigne(){
         String reponse;
+        String reponse2;
         int indice = app.getTable1().getSelectedRow();
         if(indice == -1)
         {
@@ -274,15 +291,22 @@ public class Controleur extends WindowAdapter implements ActionListener {
                 articleTables.removeRow(indice);
             }
             totalCaddie -= prix;
+
             app.getTotalArticle().setText(String.valueOf(totalCaddie));
             reponse = modele.Cancel(IdArticle, quantite);
             System.out.println("Reponse " +  reponse);
             arti.nbArticles--;
+
+            reponse2 = modele.SUPPRIME(IdFactureControleur,totalCaddie,IdArticle);
+
+            System.out.println("Reponse 2 zsdaz" + reponse2);
+
         }
     }
 
     public void SupprimerTOUT() {
         String reponse;
+        String reponse2;
 
         DefaultTableModel articleTables = (DefaultTableModel) app.getTable1().getModel();
 
@@ -298,12 +322,18 @@ public class Controleur extends WindowAdapter implements ActionListener {
         int rowCount = articleTables.getRowCount();
 
         for (int i = rowCount - 1; i >= 0; i--) {
+            reponse2 = modele.SUPPRIMETOUT(IdFactureControleur);
             articleTables.removeRow(i);
         }
 
         System.out.println("TO " + arti.nbArticles);
-        // Mettez à jour le totalCaddie et l'affichage
+
         totalCaddie = 0;
+
+        reponse2 = modele.SUPPRIMETOUT(IdFactureControleur);
+
+        System.out.println("RESPONSE 2 " + reponse2);
+
         app.getTotalArticle().setText(String.valueOf(totalCaddie));
     }
 
@@ -311,22 +341,15 @@ public class Controleur extends WindowAdapter implements ActionListener {
         String reponse;
         DefaultTableModel articleTables = (DefaultTableModel) app.getTable1().getModel();
 
-        reponse = modele.confirmer(nom, totalCaddie,arti.getStock());
+        int quantite;
+        int IdArticle;
+        for (int i = 0; i < articleTables.getRowCount(); i++) {
 
-        String[] tokens = reponse.split("#");
+            IdArticle = (int) articleTables.getValueAt(i, 0);
+            quantite = (int) articleTables.getValueAt(i, 3);
 
-        if (tokens[0].equals("CONFIRMER")) {
-            int rowCount = articleTables.getRowCount();
-
-            int quantite = 0;
-            int IdArticle = 0;
-            for (int i = 0; i < articleTables.getRowCount(); i++) {
-
-                IdArticle = (int) articleTables.getValueAt(i, 0);
-                quantite = (int) articleTables.getValueAt(i, 3);
-                System.out.println("FATCURES " + arti.numFactures);
-                reponse = modele.vente(nom, arti.numFactures, IdArticle, quantite);
-
+            reponse = modele.vente(nom, IdFactureControleur, IdArticle, quantite);
+            System.out.println("REPONSE VENTE " +reponse);
             }
             for (int i = 0; i < articleTables.getRowCount(); i++) {
 
@@ -337,6 +360,4 @@ public class Controleur extends WindowAdapter implements ActionListener {
 
             app.dispose();
         }
-    }
-
 }

@@ -21,7 +21,7 @@ public class ConfigReader {
     }
 
     public int getNbThread() {
-        return Integer.parseInt(properties.getProperty("NBTHREAD", "5"));
+        return Integer.parseInt(properties.getProperty("NBTHREAD", "3"));
     }
 
     public int getPort() {

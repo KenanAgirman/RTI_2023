@@ -175,9 +175,35 @@ public class model  {
         return response;
     }
 
-    public String confirmer(String name, float totalCaddie,int quantite) {
-        article.numFactures++;
-        String message = "CONFIRMER#" + name + "#" + article.numFactures + "#" + totalCaddie + "#" + quantite;
+    public String SUPPRIME(int idFacture,float caddie,int idArticle) {
+        String message = "SUPPRIME#" + idFacture + "#" + caddie + "#" + idArticle;
+
+        String response = echange(message);
+
+        if (response != null) {
+            System.out.println("Réponse du serveur : " + response);
+        } else {
+            System.out.println("Aucune réponse du serveur.");
+        }
+
+        return response;
+    }
+    public String SUPPRIMETOUT(int idFacture) {
+        String message = "SUPPRIMETOUT#" + idFacture;
+
+        String response = echange(message);
+
+        if (response != null) {
+            System.out.println("Réponse du serveur : " + response);
+        } else {
+            System.out.println("Aucune réponse du serveur.");
+        }
+
+        return response;
+    }
+    public String confirmer(String name,int numFacture, float totalCaddie,int quantite) {
+
+        String message = "CONFIRMER#" + name + "#" +  numFacture+ "#" + totalCaddie + "#" + quantite;
         String response = echange(message);
 
         if (response != null) {
