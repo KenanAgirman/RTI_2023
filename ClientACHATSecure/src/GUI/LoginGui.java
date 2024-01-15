@@ -5,6 +5,7 @@ import com.formdev.flatlaf.FlatDarculaLaf;
 
 import javax.swing.*;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 
 public class LoginGui extends JFrame{
     private JPanel panel1;
@@ -31,7 +32,7 @@ public class LoginGui extends JFrame{
         getLOGOUTButton().addActionListener(c);
         this.addWindowListener(c);
     }
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
         FlatDarculaLaf.setup();
         LoginGui view = new LoginGui();
         Controleur controleur = new Controleur(view);

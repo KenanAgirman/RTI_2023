@@ -7,6 +7,8 @@ public class ReponseLoginS implements Reponse {
     private int idUser;
     private byte[] cleSession;
 
+    private String Message;
+
     public ReponseLoginS(boolean isvalide) {
         this.isvalide = isvalide;
     }
@@ -31,7 +33,16 @@ public class ReponseLoginS implements Reponse {
         return idUser;
     }
 
+    public void setMessage(String message) {
+        Message = message;
+    }
+
+    public String getMessage() {
+        return Message;
+    }
+
     public byte[] getCleSession() {
         return cleSession;
     }
+
 }

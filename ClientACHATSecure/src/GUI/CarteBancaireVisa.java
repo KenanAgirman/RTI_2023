@@ -1,5 +1,6 @@
 package GUI;
 
+import Controleur.Controleur;
 import ControleurFacture.ControleurFacture;
 import com.formdev.flatlaf.FlatDarculaLaf;
 
@@ -26,7 +27,7 @@ public class CarteBancaireVisa extends JFrame{
         return LabelNumCarte;
     }
 
-    public void setControleur(ControleurFacture c){
+    public void setControleur(Controleur c){
         getValiderButton().addActionListener(c);
         this.addWindowListener(c);
     }

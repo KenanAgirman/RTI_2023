@@ -18,7 +18,7 @@ public class Facture extends JFrame {
     private JLabel FactureapayezText;
     private JLabel FactureDejaPayezText;
 
-    public void setControleur(ControleurFacture c) {
+    public void setControleur(Controleur c) {
         getButtoonPayez().addActionListener(c);
         getPayez().addActionListener(c);
         this.addWindowListener(c);

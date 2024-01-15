@@ -53,6 +53,7 @@ public class RequeteLoginS implements Requete {
         byte[] digestLocal = md.digest();
 
         // Comparaison digest reçu et digest local
+
         return MessageDigest.isEqual(digest,digestLocal);
     }
 }
