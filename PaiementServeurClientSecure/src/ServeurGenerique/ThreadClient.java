@@ -59,12 +59,11 @@ public abstract class ThreadClient extends Thread
                 logger.Trace("Fin connexion demandée par protocole");
                 if (oos != null && ex.getReponse() != null)
                     oos.writeObject(ex.getReponse());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
         }
-        catch (IOException ex) { logger.Trace("Erreur I/O"); }
-        catch (ClassNotFoundException ex) { logger.Trace("Erreur requete invalide");
-        }
-        finally
+        catch (IOException ex) { logger.Trace("Erreur I/O"); } finally
         {
             try { csocket.close(); }
             catch (IOException ex) { logger.Trace("Erreur fermeture socket"); }

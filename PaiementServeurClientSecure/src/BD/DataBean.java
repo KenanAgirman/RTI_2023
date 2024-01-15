@@ -6,6 +6,7 @@ import Protocol.FactureBill;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class DataBean {
@@ -31,7 +32,37 @@ public class DataBean {
         }
     }
 
-    public List<FactureBill> getALLFactures(int idClient, int check) {
+    public static LinkedList<FactureBill> getALLFactures(boolean paye, int idClient){
+        try {
+            int p;
+
+            if(paye) p = 1;
+            else p = 0;
+
+            String query = "SELECT * FROM factures WHERE paye = " + 1 + " AND idClient = " + idClient + " AND dateFacture IS NOT NULL";
+
+            ResultSet resultSet = DatabaseConnectionBean.executeQuery(query);
+
+            LinkedList<FactureBill> factures = new LinkedList<>();
+
+            while (resultSet.next()){
+                int idFacture = resultSet.getInt("idFacture");
+                String dateFacture = resultSet.getString("dateFacture");
+                Float montant = resultSet.getFloat("montant");
+
+                FactureBill facture = new FactureBill(idFacture, dateFacture, montant);
+
+                factures.add(facture);
+            }
+
+            return factures;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /*
+    public static List<FactureBill> getALLFactures(int idClient, int check) {
         try {
             List<FactureBill> factures = new ArrayList<>();
             String requete = "SELECT * FROM factures WHERE paye = " + check + " AND idClient = " + idClient;
@@ -56,6 +87,9 @@ public class DataBean {
             throw new RuntimeException(e);
         }
     }
+
+     */
+
 
     public boolean PayemenetFactureVisa(int idFacture) throws SQLException {
         String requete = "UPDATE factures SET paye = '1' WHERE idFacture = " + idFacture;

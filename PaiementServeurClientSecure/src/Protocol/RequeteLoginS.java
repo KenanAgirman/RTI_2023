@@ -10,6 +10,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.Security;
+import java.util.Arrays;
 import java.util.Date;
 
 public class RequeteLoginS implements Requete {
@@ -50,6 +51,7 @@ public class RequeteLoginS implements Requete {
         dos.writeDouble(alea);
         md.update(baos.toByteArray());
         byte[] digestLocal = md.digest();
+        System.out.println("DIGEST " + Arrays.toString(digest) + "   DIGESTLOCAL " + Arrays.toString(digestLocal));
 
         // Comparaison digest reçu et digest local
         return MessageDigest.isEqual(digest,digestLocal);

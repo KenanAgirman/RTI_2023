@@ -2,16 +2,15 @@ package Controleur;
 
 import CONFIG.ConfigReader;
 import GUI.View;
-import Protocol.VESPA;
 import Protocol.VESPAS;
 import ServeurGenerique.*;
 
-import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Vector;
 
 public class Controleur extends WindowAdapter implements Logger,ActionListener {
@@ -58,6 +57,10 @@ public class Controleur extends WindowAdapter implements Logger,ActionListener {
 
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
