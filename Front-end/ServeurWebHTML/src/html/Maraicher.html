@@ -2,9 +2,48 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Site Maraicher</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="/javascript/code.js" defer></script>
 </head>
 <body>
-<p>Kenan et Leila</p>
+<h1>Bienvenue sur le site du Maraîcher en ligne</h1>
+<div id="contenu">
+    <div id="tabSelec">
+        <table  id="tab">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Article</th>
+                <th>Prix Unitaire</th>
+                <th>Quantité</th>
+            </tr>
+            </thead>
+            <tbody id="table"></tbody>
+        </table>
+    </div>
+
+    <div id="formulaire">
+        <p id="Paraf">Article sélectionné :</p>
+        <form id="FormArticle" method="post">
+            <label for="id">ID :</label>
+            <input type="text" id="id" name="id"><br>
+
+            <label for="article">Article :</label>
+            <input type="text" id="article" name="article"><br>
+
+            <label for="unitPrice">Prix Unitaire :</label>
+            <input type="number" id="unitPrice" name="unitPrice"><br>
+
+            <label for="quantite">Quantité :</label>
+            <input type="number" id="quantite" name="quantite"><br>
+            <!-- Update the input field to an img element -->
+            <img id="selectedImage" alt="Selected Image" style="max-width: 200px; max-height: 200px;">
+
+            <button type="button" id="updateButton">Mettre à jour</button>
+        </form>
+
+    </div>
+</div>
 </body>
 </html>
